@@ -1,0 +1,1 @@
+Full night 1 14,400 ticks completed in 0.06s (Threshold: <= 30s)

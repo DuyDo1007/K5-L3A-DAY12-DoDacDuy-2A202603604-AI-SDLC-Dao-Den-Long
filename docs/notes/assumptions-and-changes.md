@@ -65,8 +65,17 @@ Tài liệu ghi lại toàn bộ giả định thiết kế, giải trình thay 
 
 ---
 
-## Phase 3: Ticket-03
-*(Chờ phát hành)*
+## Phase 3: Ticket-03 — "Đèn cạn dầu" (Test Contract v1.2)
+
+### 1. Thay đổi cốt lõi & Giả định (ADR 003)
+- **Nhiên liệu đèn:** Max 100. Tự hao 1.0 fuel/s (`1/60` mỗi tick). Hết dầu đèn tắt (`lantern_out`), `ever_lit = true`.
+- **Châm dầu:** `used = min(carried, ceil((100 - fuel) / 10))`, `fuel = min(100, fuel + 10 * used)`. Đèn đầy dầu (100) không được chọn khi tương tác.
+- **Thắp lại:** Đèn `ever_lit` chỉ cần 5 đom đóm, thưởng +40 điểm (lần đầu +100 điểm).
+- **Bóng Mực hút dầu:** Đèn `fuel < 30` mất vùng an toàn. Shade `wander` ưu tiên đi tới đèn sáng yếu gần nhất, đến cách <= 2.0m chuyển sang `drain`, hút 5 fuel/s, phát `fuel_drain` mỗi 60 tick.
+- **Giải cứu đèn:** Châm dầu đèn lên >= 30 kích hoạt lại vùng an toàn 6m, đẩy Shade ra ngoài trong 30 tick. Pulse trúng Shade đang `drain` thưởng **+15 điểm**.
+- **Luật thắng mới (Bình minh):** Bỏ thắng sớm (`all_lit`). Thời gian Đêm 1/2/3: 240 / 270 / 300 s. Thắng `dawn_survived` khi hết giờ mà Mây còn sống và số đèn đang sáng >= ceil(0.6 * tổng đèn) (Đêm 1: 3/5, Đêm 2: 4/6, Đêm 3: 5/7). Thua khi hết ngọn lửa (`no_flames`) hoặc hết giờ thiếu đèn (`dawn`).
+- **Sức chứa tăng dần:** `capacity = min(20, 10 + 2 * successful_lights)` (tối đa 20 đom đóm).
+- **Hệ số điểm mới:** +5 mỗi đom đóm nạp; +100 thắp đầu; +40 thắp lại; +15 diệt Shade drain; Bình minh: mỗi đèn sáng `+50 + floor(fuel)`, mỗi flame `+50`.
 
 ---
 

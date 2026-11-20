@@ -1,12 +1,24 @@
 /**
- * Cấu hình tham số mô phỏng chuẩn hóa cho Đảo Đèn Lồng (Phase 2: Test Contract v1.1)
+ * Cấu hình tham số mô phỏng chuẩn hóa cho Đảo Đèn Lồng (Phase 3: Test Contract v1.2)
  */
 export const DEFAULT_CONFIG = {
-  // Bản đồ & Thời lượng các Đêm
+  contract_version: "1.2",
+
+  // Bản đồ & Thời lượng các Đêm (Ticket-03: 240 / 270 / 300 s)
   islandRadius_night1: 40.0,
-  night1_duration_s: 300,
-  night2_duration_s: 330,
-  night3_duration_s: 360,
+  night1_duration_s: 240,
+  night2_duration_s: 270,
+  night3_duration_s: 300,
+
+  // Nhiên liệu Đèn Lồng (Ticket-03 v1.2)
+  fuel_max: 100,
+  fuel_decay_per_s: 1.0,      // 1.0 đơn vị/giây (1/60 mỗi tick)
+  fuel_per_mote: 10,          // 1 đom đóm = 10 fuel
+  relight_cost: 5,            // Thắp lại đèn đã ever_lit chỉ tốn 5 đom đóm
+  win_ratio: 0.6,             // Tỉ lệ đèn cần sáng tại bình minh: Đêm 1: 3/5, Đêm 2: 4/6, Đêm 3: 5/7
+  drain_per_s: 5,             // Bóng Mực hút 5 fuel/giây
+  low_fuel_threshold: 30,     // Dưới 30 mất vùng an toàn
+  capacity_max: 20,           // Sức chứa tối đa
 
   // Di chuyển Mây
   player_speed: 6.0,          // 6.0 m/s
@@ -68,15 +80,8 @@ export const DEFAULT_CONFIG = {
   charm_speed: 7.2,
   charm_respawn_ticks: 2700,
 
-  // Máu & Điểm số
+  // Máu & Điểm số (Ticket-03 Công thức mới)
   flames: 3,
-  score: {
-    per_mote: 10,
-    per_lantern: 100,
-    per_stun: 5,
-    per_second_left: 2,
-    per_flame_left: 50
-  },
 
   // Tần số mô phỏng
   tickRate: 60

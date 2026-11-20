@@ -15,3 +15,4 @@
 ## 3. Nhật ký Tiến hóa Harness (Harness Evolution Log)
 - **Phase 1 (v1.0):** Khởi tạo bộ khung headless-first, seeded RNG, kiểm chứng tính tất định và pre-commit hook.
 - **Phase 2 (v1.1):** Nâng cấp Test Contract v1.1, tích hợp 3 Đêm (Đảo Bến, Đảo Cau, Đảo Chuông), chuẩn hóa số liệu di chuyển (6m/s, nhảy 7m/s, lướt 14m/s), Gió Lạc (Drifter), Bùa Gió (Wind Charm), và cơ chế Pause.
+- **Phase 3 (v1.2):** Cập nhật Test Contract v1.2: cơ chế đèn cạn dầu (1.0 fuel/s), châm dầu, thắp lại 5 đom đóm, Bóng Mực hút dầu (5 fuel/s khi fuel < 30), luật thắng bình minh (dawn_survived, >= 60% đèn sáng sau 240/270/300s), sức chứa tăng dần tới 20.

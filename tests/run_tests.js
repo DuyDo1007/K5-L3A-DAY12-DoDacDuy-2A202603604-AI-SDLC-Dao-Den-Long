@@ -4,7 +4,7 @@ import { WorldSimulation } from '../src/core/simulation.js';
 import { SeededRNG } from '../src/core/rng.js';
 import { runSimulation } from '../src/headless/cli.js';
 
-console.log('=== RUNNING UNIT & INTEGRATION TESTS (PHASE 2 - CONTRACT v1.1) ===');
+console.log('=== RUNNING UNIT & INTEGRATION TESTS (PHASE 3 - CONTRACT v1.2) ===');
 
 let passed = 0;
 let failed = 0;
@@ -144,14 +144,142 @@ test('Rơi khỏi đảo gây mất 1 ngọn lửa, mất toàn bộ đom đóm 
   assert(sim.player.fallWaitTicks > 0);
 });
 
-// 10. Kiểm tra tính tất định 100% của Contract v1.1
-test('Tính tất định 100% Contract v1.1: 2 lần chạy cho cùng SHA-256 byte-for-byte', () => {
-  const opts = { seed: 54321, night: 1, ticks: 100, snapshotEvery: 10 };
+// 10. Kiểm tra tính tất định 100% của Contract v1.2
+test('Tính tất định 100% Contract v1.2: 2 lần chạy cho cùng SHA-256 byte-for-byte', () => {
+  const opts = { seed: 54321, night: 1, ticks: 120, snapshotEvery: 10 };
   const res1 = runSimulation(opts);
   const res2 = runSimulation(opts);
   const hash1 = crypto.createHash('sha256').update(res1.lines.join('\n')).digest('hex');
   const hash2 = crypto.createHash('sha256').update(res2.lines.join('\n')).digest('hex');
   assert.strictEqual(hash1, hash2, 'Hashes must match');
+});
+
+// === CÁC TEST CASE CHO PHASE 3 (TICKET-03 - CONTRACT v1.2) ===
+
+// 11. Đèn tự hao hụt nhiên liệu & Tắt khi hết dầu (lantern_out)
+test('Phase 3: Đèn tự hao hụt 1.0 fuel/s (1/60 mỗi tick), hết dầu thì tắt và nhớ ever_lit', () => {
+  const sim = new WorldSimulation({}, 100, 1);
+  sim.loadScenario({
+    player: { pos: [0, 0, 0], carried: 0, flames: 3 },
+    random_motes: false,
+    lanterns: [{ id: 'L1', pos: [10, 0, 10], deposited: 10, lit: true, fuelTicks: 60, ever_lit: true }]
+  });
+  // Ban đầu fuel = 60/60 = 1.0
+  assert.strictEqual(sim.lanterns[0].lit, true);
+  // Sau 60 tick, fuel giảm về 0 -> phát sự kiện lantern_out
+  let outEmitted = false;
+  for (let i = 0; i < 60; i++) {
+    const events = sim.step({});
+    if (events.some(e => e.name === 'lantern_out' && e.data.lantern_id === 'L1')) {
+      outEmitted = true;
+    }
+  }
+  assert.strictEqual(outEmitted, true, 'Should emit lantern_out event');
+  assert.strictEqual(sim.lanterns[0].lit, false, 'Lantern should be unlit');
+  assert.strictEqual(sim.lanterns[0].deposited, 0, 'Deposited reset to 0');
+  assert.strictEqual(sim.lanterns[0].ever_lit, true, 'Ever lit must be true');
+});
+
+// 12. Châm dầu (refuel) cho đèn đang sáng
+test('Phase 3: Châm dầu đèn đang sáng tính theo used = min(carried, ceil((100-fuel)/10))', () => {
+  const sim = new WorldSimulation({}, 100, 1);
+  sim.loadScenario({
+    player: { pos: [0, 0, 24.0], carried: 3, flames: 3 },
+    random_motes: false,
+    lanterns: [{ id: 'L1', pos: [0, 0, 25.0], deposited: 10, lit: true, fuelTicks: 4860, ever_lit: true }] // fuel = 81.0, cần bù 19 -> 2 đom đóm
+  });
+  // Cần châm ceil((100 - 81) / 10) = 2 đom đóm
+  const scoreBefore = sim.score;
+  const events = sim.step({ interact: true });
+  assert(events.some(e => e.name === 'refuel' && e.data.lantern_id === 'L1' && e.data.amount === 2));
+  assert.strictEqual(sim.player.carried, 1, 'Carried should decrease by 2');
+  assert.strictEqual(sim.lanterns[0].fuelTicks, 6000, 'Fuel should be full (100.0)');
+  assert.strictEqual(sim.score, scoreBefore + 10, 'Score should increase by +5 per mote = +10');
+});
+
+// 13. Thắp lại đèn đã từng sáng (ever_lit) chỉ cần 5 đom đóm
+test('Phase 3: Đèn đã từng sáng (ever_lit: true) chỉ cần 5 đom đóm để thắp lại và thưởng +40 điểm', () => {
+  const sim = new WorldSimulation({}, 100, 1);
+  sim.loadScenario({
+    player: { pos: [0, 0, 24.0], carried: 7, flames: 3 },
+    random_motes: false,
+    lanterns: [{ id: 'L1', pos: [0, 0, 25.0], deposited: 0, lit: false, ever_lit: true }]
+  });
+  const scoreBefore = sim.score;
+  const events = sim.step({ interact: true });
+  assert(events.some(e => e.name === 'deposit' && e.data.amount === 5));
+  assert(events.some(e => e.name === 'lantern_lit' && e.data.lantern_id === 'L1' && e.data.relight === true));
+  assert.strictEqual(sim.player.carried, 2, 'Carried should decrease by 5');
+  assert.strictEqual(sim.lanterns[0].lit, true, 'Lantern should be lit');
+  assert.strictEqual(sim.lanterns[0].fuelTicks, 6000, 'Fuel reset to 100');
+  assert.strictEqual(sim.lanterns[0].relit_count, 1, 'Relit count incremented');
+  // Thưởng: 5 motes * 5 = +25, relight = +40 -> tổng +65
+  assert.strictEqual(sim.score, scoreBefore + 65);
+});
+
+// 14. Bóng Mực hút dầu (drain) khi fuel < 30 và phát sự kiện fuel_drain mỗi 60 tick
+test('Phase 3: Bóng Mực tiếp cận đèn fuel < 30, drain 5 fuel/s và phát fuel_drain mỗi 60 tick', () => {
+  const sim = new WorldSimulation({}, 100, 1);
+  sim.loadScenario({
+    player: { pos: [30, 0, 30], carried: 0, flames: 3 }, // Mây ở xa (>6m)
+    random_motes: false,
+    lanterns: [{ id: 'L1', pos: [0, 0, 0], deposited: 10, lit: true, fuelTicks: 1500, ever_lit: true }], // fuel = 25 (< 30)
+    shades: [{ id: 'S1', pos: [1.5, 0, 0], state: 'drain', drainTicks: 0, target_lantern_id: 'L1' }]
+  });
+  // Shade bắt đầu drain tại tick 0 -> phát sự kiện fuel_drain ngay tick này
+  const events = sim.step({});
+  assert(events.some(e => e.name === 'fuel_drain' && e.data.shade_id === 'S1' && e.data.lantern_id === 'L1'));
+  // Hao hụt: tự nhiên 1 tick (1/60) + drain 5 ticks (5/60) = 6 ticks
+  assert.strictEqual(sim.lanterns[0].fuelTicks, 1500 - 6);
+});
+
+// 15. Pulse trúng Shade đang drain thưởng +15 điểm thay vì +5
+test('Phase 3: Tỏa Sáng (Pulse) trúng Bóng Mực đang drain thưởng +15 điểm', () => {
+  const sim = new WorldSimulation({}, 100, 1);
+  sim.loadScenario({
+    player: { pos: [0, 0, 0], carried: 3, flames: 3 },
+    random_motes: false,
+    lanterns: [{ id: 'L1', pos: [2.0, 0, 0], deposited: 10, lit: true, fuelTicks: 1500, ever_lit: true }],
+    shades: [{ id: 'S1', pos: [2.0, 0, 0], state: 'drain', target_lantern_id: 'L1' }]
+  });
+  const scoreBefore = sim.score;
+  const events = sim.step({ pulse: true });
+  assert(events.some(e => e.name === 'pulse'));
+  assert.strictEqual(sim.score, scoreBefore + 15, 'Score should increase by +15 for draining shade');
+  assert.strictEqual(sim.shades[0].state, 'stunned');
+});
+
+// 16. Sức chứa tăng dần: capacity = min(20, 10 + 2 * successful_lights)
+test('Phase 3: Sức chứa tăng dần theo số lần thắp đèn thành công, tối đa 20', () => {
+  const sim = new WorldSimulation({}, 100, 1);
+  assert.strictEqual(sim.player.capacity, 10);
+  sim.successful_lights = 3;
+  sim.player.capacity = Math.min(20, 10 + 2 * sim.successful_lights);
+  assert.strictEqual(sim.player.capacity, 16);
+  sim.successful_lights = 6;
+  sim.player.capacity = Math.min(20, 10 + 2 * sim.successful_lights);
+  assert.strictEqual(sim.player.capacity, 20); // max 20
+});
+
+// 17. Luật thắng mới: Hết giờ sống sót (dawn_survived) khi số đèn đang sáng >= ceil(0.6 * tổng đèn)
+test('Phase 3: Thắng bình minh (dawn_survived) khi hết giờ và đủ >= 60% đèn sáng', () => {
+  const sim = new WorldSimulation({}, 100, 1);
+  // Đêm 1 có 5 đèn, 60% = 3 đèn; hết giờ tại tick đầu
+  sim.loadScenario({
+    time_left_s: 1.0 / 60.0,
+    player: { pos: [0, 0, 0], carried: 0, flames: 3 },
+    random_motes: false,
+    lanterns: [
+      { id: 'L1', pos: [10, 0, 0], deposited: 10, lit: true, fuelTicks: 6000, ever_lit: true },
+      { id: 'L2', pos: [20, 0, 0], deposited: 10, lit: true, fuelTicks: 6000, ever_lit: true },
+      { id: 'L3', pos: [30, 0, 0], deposited: 10, lit: true, fuelTicks: 6000, ever_lit: true },
+      { id: 'L4', pos: [40, 0, 0], deposited: 0, lit: false, fuelTicks: 0, ever_lit: false },
+      { id: 'L5', pos: [50, 0, 0], deposited: 0, lit: false, fuelTicks: 0, ever_lit: false }
+    ]
+  });
+  const events = sim.step({});
+  assert(events.some(e => e.name === 'game_over' && e.data.result === 'won' && e.data.reason === 'dawn_survived'));
+  assert.strictEqual(sim.state, 'won');
 });
 
 console.log(`\nKết quả: ${passed} passed, ${failed} failed.`);
