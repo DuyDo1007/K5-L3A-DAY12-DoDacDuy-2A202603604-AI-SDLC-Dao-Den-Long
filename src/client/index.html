@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đảo Đèn Lồng — 3D Game (Day 12 AI SDLC)</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+    body {
+      background-color: #050814;
+      color: #f3e5c8;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+    }
+    #game-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    #hud {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .hud-card {
+      background: rgba(10, 16, 32, 0.85);
+      border: 1px solid rgba(243, 175, 61, 0.3);
+      border-radius: 12px;
+      padding: 10px 18px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.5), inset 0 0 8px rgba(243, 175, 61, 0.1);
+      backdrop-filter: blur(8px);
+    }
+    .hud-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #e5a952;
+      margin-bottom: 4px;
+    }
+    .hud-val {
+      font-size: 20px;
+      font-weight: bold;
+      color: #fff6e0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .flame-icon {
+      color: #ff7b25;
+      filter: drop-shadow(0 0 6px #ff7b25);
+    }
+    #controls-hint {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      background: rgba(10, 16, 32, 0.8);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 12px;
+      color: #c9d1d9;
+      pointer-events: none;
+      z-index: 10;
+      line-height: 1.6;
+    }
+    .kbd {
+      background: rgba(255,255,255,0.15);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: bold;
+      color: #f3af3d;
+    }
+    #overlay-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(5, 8, 20, 0.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      backdrop-filter: blur(6px);
+      transition: opacity 0.5s ease;
+    }
+    .overlay-content {
+      background: rgba(16, 24, 48, 0.95);
+      border: 2px solid #e5a952;
+      border-radius: 20px;
+      padding: 36px 48px;
+      text-align: center;
+      box-shadow: 0 0 30px rgba(229, 169, 82, 0.3);
+      max-width: 480px;
+    }
+    .overlay-title {
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+    .overlay-desc {
+      font-size: 15px;
+      color: #d1d5db;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    .btn-action {
+      background: linear-gradient(135deg, #e5a952, #d97706);
+      color: #0b1120;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 28px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.4);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(217, 119, 6, 0.6);
+    }
+    #pulse-btn {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      pointer-events: auto;
+      background: radial-gradient(circle, #e5a952, #854d0e);
+      border: 2px solid #fff;
+      border-radius: 50%;
+      width: 72px;
+      height: 72px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: bold;
+      font-size: 11px;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(229, 169, 82, 0.6);
+      z-index: 20;
+    }
+    #pulse-btn:active {
+      transform: scale(0.95);
+    }
+  </style>
+
+  <!-- Importmap: sử dụng ESM CDN tương thích mọi trình duyệt và hệ điều hành -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://esm.sh/three@0.160.0",
+      "three/": "https://esm.sh/three@0.160.0/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="hud">
+    <div class="hud-card">
+      <div class="hud-title">Lửa Sinh Mệnh (Flames)</div>
+      <div class="hud-val" id="hud-flames">
+        <span class="flame-icon">🔥</span>
+        <span class="flame-icon">🔥</span>
+        <span class="flame-icon">🔥</span>
+      </div>
+    </div>
+
+    <div class="hud-card">
+      <div class="hud-title">Đom Đóm Giữ (Motes)</div>
+      <div class="hud-val" id="hud-motes">✨ 0 / 5</div>
+    </div>
+
+    <div class="hud-card">
+      <div class="hud-title">Đèn Lồng Lớn</div>
+      <div class="hud-val" id="hud-lanterns">🏮 0 / 5</div>
+    </div>
+
+    <div class="hud-card">
+      <div class="hud-title">Điểm & Thời Gian</div>
+      <div class="hud-val"><span id="hud-score">0</span> pts · <span id="hud-time">300s</span></div>
+    </div>
+  </div>
+
+  <div id="controls-hint">
+    <span class="kbd">W/A/S/D</span> hoặc <span class="kbd">Mũi tên</span>: Di chuyển<br>
+    <span class="kbd">Kéo chuột</span>: Xoay camera góc nhìn thứ 3<br>
+    <span class="kbd">E</span>: Nạp đom đóm vào Đèn Lồng<br>
+    <span class="kbd">Space</span> / <span class="kbd">F</span>: Tỏa sáng (Pulse) xua Bóng Mực<br>
+    <span class="kbd">R</span>: Chơi lại
+  </div>
+
+  <div id="pulse-btn" title="Tỏa sáng xua đuổi Bóng Mực (Phím SPACE hoặc F)">
+    <span>PULSE</span>
+    <span style="font-size: 9px; opacity: 0.8;">[SPACE]</span>
+  </div>
+
+  <div id="overlay-screen" style="display: none;">
+    <div class="overlay-content">
+      <div class="overlay-title" id="overlay-title">Chiến Thắng!</div>
+      <div class="overlay-desc" id="overlay-desc">Mây đã thắp sáng toàn bộ Đèn Lồng Lớn, xua tan sương đen khỏi hòn đảo!</div>
+      <button class="btn-action" id="btn-restart">Chơi Lại (Đêm 1)</button>
+    </div>
+  </div>
+
+  <canvas id="game-canvas"></canvas>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { WorldSimulation } from '/src/core/simulation.js';
+
+    // --- PROCEDURAL AUDIO (WebAudio API) ---
+    class AudioManager {
+      constructor() {
+        this.ctx = null;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+      }
+      playMoteSound() {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, this.ctx.currentTime); // D5
+        osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.12); // A5
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.2);
+      }
+      playLanternLitSound() {
+        if (!this.ctx) return;
+        [440, 554.37, 659.25, 880].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.08);
+          gain.gain.setValueAtTime(0.25, this.ctx.currentTime + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.08 + 0.6);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(this.ctx.currentTime + idx * 0.08);
+          osc.stop(this.ctx.currentTime + idx * 0.08 + 0.6);
+        });
+      }
+      playPulseSound() {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.35);
+        gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.35);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.35);
+      }
+      playHitSound() {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.25);
+        gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.25);
+      }
+    }
+
+    const audio = new AudioManager();
+
+    // --- SETUP THREE.JS SCENE ---
+    const canvas = document.getElementById('game-canvas');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x060914);
+    // Sương đen đêm (Black Fog)
+    scene.fog = new THREE.FogExp2(0x060914, 0.022);
+
+    const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 200);
+
+    // Ánh sáng môi trường đêm ấm cúng
+    const ambientLight = new THREE.AmbientLight(0x222a45, 1.2);
+    scene.add(ambientLight);
+
+    const moonLight = new THREE.DirectionalLight(0x6b8afd, 0.8);
+    moonLight.position.set(20, 40, 20);
+    moonLight.castShadow = true;
+    scene.add(moonLight);
+
+    // --- TẠO HÒN ĐẢO (ISLAND) ---
+    const islandRadius = 35.0;
+    const islandGeo = new THREE.CylinderGeometry(islandRadius, islandRadius * 0.9, 4, 48);
+    const islandMat = new THREE.MeshStandardMaterial({
+      color: 0x18241b, // Rêu đá xanh sẫm ban đêm
+      roughness: 0.9,
+      metalness: 0.1
+    });
+    const island = new THREE.Mesh(islandGeo, islandMat);
+    island.position.y = -2;
+    island.receiveShadow = true;
+    scene.add(island);
+
+    // Bãi cỏ trung tâm
+    const grassGeo = new THREE.CircleGeometry(islandRadius * 0.85, 36);
+    const grassMat = new THREE.MeshStandardMaterial({ color: 0x223624, roughness: 0.8 });
+    const grass = new THREE.Mesh(grassGeo, grassMat);
+    grass.rotation.x = -Math.PI / 2;
+    grass.position.y = 0.02;
+    grass.receiveShadow = true;
+    scene.add(grass);
+
+    // Biển mây bồng bềnh dưới chân đảo
+    const cloudGeo = new THREE.PlaneGeometry(160, 160, 16, 16);
+    const cloudMat = new THREE.MeshStandardMaterial({
+      color: 0x121b2d,
+      transparent: true,
+      opacity: 0.7,
+      roughness: 1.0
+    });
+    const clouds = new THREE.Mesh(cloudGeo, cloudMat);
+    clouds.rotation.x = -Math.PI / 2;
+    clouds.position.y = -3.8;
+    scene.add(clouds);
+
+    // --- NHÂN VẬT MÂY (VỚI NÓN LÁ & ĐÈN LỒNG NHỎ) ---
+    const mayGroup = new THREE.Group();
+
+    // Thân áo áo dài / áo bông xanh lam
+    const bodyGeo = new THREE.CylinderGeometry(0.3, 0.45, 1.0, 16);
+    const bodyMat = new THREE.MeshStandardMaterial({ color: 0x2b5278, roughness: 0.7 });
+    const body = new THREE.Mesh(bodyGeo, bodyMat);
+    body.position.y = 0.55;
+    body.castShadow = true;
+    mayGroup.add(body);
+
+    // Đầu
+    const headGeo = new THREE.SphereGeometry(0.24, 16, 16);
+    const headMat = new THREE.MeshStandardMaterial({ color: 0xfed8b1, roughness: 0.6 });
+    const head = new THREE.Mesh(headGeo, headMat);
+    head.position.y = 1.2;
+    head.castShadow = true;
+    mayGroup.add(head);
+
+    // Nón Lá đặc trưng
+    const hatGeo = new THREE.ConeGeometry(0.75, 0.35, 24);
+    const hatMat = new THREE.MeshStandardMaterial({ color: 0xd9b36c, roughness: 0.85 });
+    const hat = new THREE.Mesh(hatGeo, hatMat);
+    hat.position.y = 1.45;
+    hat.castShadow = true;
+    mayGroup.add(hat);
+
+    // Chiếc đèn lồng nhỏ treo trên nón lá
+    const smallLanternGeo = new THREE.SphereGeometry(0.1, 12, 12);
+    const smallLanternMat = new THREE.MeshStandardMaterial({
+      color: 0xffaa33,
+      emissive: 0xff8811,
+      emissiveIntensity: 1.5
+    });
+    const smallLantern = new THREE.Mesh(smallLanternGeo, smallLanternMat);
+    smallLantern.position.set(0.35, 1.25, 0.2);
+    mayGroup.add(smallLantern);
+
+    // Ánh sáng ấm từ chiếc đèn lồng nhỏ của Mây
+    const mayLight = new THREE.PointLight(0xffaa33, 2.0, 8.0);
+    mayLight.position.set(0.35, 1.3, 0.2);
+    mayGroup.add(mayLight);
+
+    scene.add(mayGroup);
+
+    // --- 5 ĐÈN LỒNG LỚN (GREAT LANTERNS) ---
+    const lanternMeshes = [];
+    const lanternLights = [];
+
+    function createLanternObject(x, z, id) {
+      const group = new THREE.Group();
+      group.position.set(x, 0, z);
+
+      // Trụ đá cổ kính
+      const pillarGeo = new THREE.CylinderGeometry(0.35, 0.45, 1.6, 8);
+      const pillarMat = new THREE.MeshStandardMaterial({ color: 0x3d4450, roughness: 0.9 });
+      const pillar = new THREE.Mesh(pillarGeo, pillarMat);
+      pillar.position.y = 0.8;
+      pillar.castShadow = true;
+      group.add(pillar);
+
+      // Khung Đèn Lồng
+      const frameGeo = new THREE.BoxGeometry(0.9, 1.1, 0.9);
+      const frameMat = new THREE.MeshStandardMaterial({
+        color: 0xff9922,
+        emissive: 0x331100,
+        emissiveIntensity: 0.2,
+        roughness: 0.5
+      });
+      const frame = new THREE.Mesh(frameGeo, frameMat);
+      frame.position.y = 1.8;
+      frame.castShadow = true;
+      group.add(frame);
+
+      // Mái ngói lồng đèn
+      const roofGeo = new THREE.ConeGeometry(0.9, 0.4, 4);
+      const roofMat = new THREE.MeshStandardMaterial({ color: 0x8b3a2b, roughness: 0.7 });
+      const roof = new THREE.Mesh(roofGeo, roofMat);
+      roof.position.y = 2.5;
+      roof.rotation.y = Math.PI / 4;
+      group.add(roof);
+
+      // Nguồn sáng ấm rực rỡ khi thắp
+      const pLight = new THREE.PointLight(0xffaa33, 0.5, 12);
+      pLight.position.set(0, 1.9, 0);
+      group.add(pLight);
+
+      scene.add(group);
+      lanternMeshes.push({ id, group, frame, frameMat });
+      lanternLights.push(pLight);
+    }
+
+    // --- ĐOM ĐÓM (MOTES) ---
+    const moteMeshMap = new Map();
+    const moteGeo = new THREE.SphereGeometry(0.12, 8, 8);
+    const moteMat = new THREE.MeshStandardMaterial({
+      color: 0xffea79,
+      emissive: 0xffd000,
+      emissiveIntensity: 2.0
+    });
+
+    // --- BÓNG MỰC (INK SHADOWS) ---
+    const shadeMeshMap = new Map();
+    const shadeGeo = new THREE.SphereGeometry(0.65, 16, 16);
+    const shadeMat = new THREE.MeshStandardMaterial({
+      color: 0x1a0928,
+      emissive: 0x3a005c,
+      emissiveIntensity: 0.8,
+      roughness: 0.4
+    });
+
+    // Vòng sóng Pulse hiệu ứng
+    const pulseRingGeo = new THREE.RingGeometry(0.5, 1.0, 32);
+    const pulseRingMat = new THREE.MeshBasicMaterial({
+      color: 0xffdd66,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.0
+    });
+    const pulseRing = new THREE.Mesh(pulseRingGeo, pulseRingMat);
+    pulseRing.rotation.x = -Math.PI / 2;
+    pulseRing.position.y = 0.1;
+    scene.add(pulseRing);
+    let pulseAnimProgress = 1.0;
+
+    // --- CORE SIMULATION INSTANCE ---
+    const sim = new WorldSimulation({ islandRadius: 35.0 }, 42);
+
+    // Dựng 5 Đèn Lồng theo vị trí trong simulation
+    sim.lanterns.forEach(l => {
+      createLanternObject(l.pos[0], l.pos[2], l.id);
+    });
+
+    // Dựng đom đóm
+    sim.motes.forEach(m => {
+      const mesh = new THREE.Mesh(moteGeo, moteMat);
+      mesh.position.set(m.pos[0], 0.6, m.pos[2]);
+      scene.add(mesh);
+      moteMeshMap.set(m.id, mesh);
+    });
+
+    // Dựng Bóng Mực
+    sim.shades.forEach(s => {
+      const group = new THREE.Group();
+      const bodyMesh = new THREE.Mesh(shadeGeo, shadeMat);
+      bodyMesh.position.y = 0.7;
+      group.add(bodyMesh);
+
+      // Đôi mắt tím phát sáng
+      const eyeGeo = new THREE.SphereGeometry(0.08, 8, 8);
+      const eyeMat = new THREE.MeshBasicMaterial({ color: 0xcc44ff });
+      const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
+      eyeL.position.set(-0.2, 0.85, 0.55);
+      const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
+      eyeR.position.set(0.2, 0.85, 0.55);
+      group.add(eyeL);
+      group.add(eyeR);
+
+      group.position.set(s.pos[0], 0, s.pos[2]);
+      scene.add(group);
+      shadeMeshMap.set(s.id, group);
+    });
+
+    // --- INPUT CONTROLS ---
+    const keys = {
+      w: false, a: false, s: false, d: false,
+      arrowup: false, arrowleft: false, arrowdown: false, arrowright: false,
+      e: false, space: false, f: false
+    };
+
+    window.addEventListener('keydown', (e) => {
+      audio.init();
+      const k = e.key.toLowerCase();
+      if (keys.hasOwnProperty(k)) keys[k] = true;
+      if (k === 'r') location.reload();
+    });
+
+    window.addEventListener('keyup', (e) => {
+      const k = e.key.toLowerCase();
+      if (keys.hasOwnProperty(k)) keys[k] = false;
+    });
+
+    document.getElementById('pulse-btn').addEventListener('click', () => {
+      audio.init();
+      keys.space = true;
+      setTimeout(() => { keys.space = false; }, 100);
+    });
+
+    document.getElementById('btn-restart').addEventListener('click', () => {
+      location.reload();
+    });
+
+    // Camera Orbit controls kéo chuột
+    let isDragging = false;
+    let prevMouseX = 0;
+    let cameraYaw = 0; // góc yaw (radian)
+
+    window.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      prevMouseX = e.clientX;
+    });
+    window.addEventListener('mouseup', () => { isDragging = false; });
+    window.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        const deltaX = e.clientX - prevMouseX;
+        cameraYaw += deltaX * 0.006;
+        prevMouseX = e.clientX;
+      }
+    });
+
+    // --- HUD UPDATE FUNCTION ---
+    function updateHUD() {
+      // Flames
+      const flamesContainer = document.getElementById('hud-flames');
+      let flamesHtml = '';
+      for (let i = 0; i < 3; i++) {
+        if (i < sim.player.flames) {
+          flamesHtml += '<span class="flame-icon">🔥</span>';
+        } else {
+          flamesHtml += '<span style="opacity: 0.2;">🔥</span>';
+        }
+      }
+      flamesContainer.innerHTML = flamesHtml;
+
+      // Motes
+      document.getElementById('hud-motes').innerText = `✨ ${sim.player.carried} / ${sim.config.carry_capacity}`;
+
+      // Lanterns
+      const litCount = sim.lanterns.filter(l => l.lit).length;
+      document.getElementById('hud-lanterns').innerText = `🏮 ${litCount} / ${sim.lanterns.length}`;
+
+      // Score & Time
+      document.getElementById('hud-score').innerText = sim.score;
+      document.getElementById('hud-time').innerText = `${Math.ceil(sim.time_left_s)}s`;
+    }
+
+    // --- GAME LOOP ---
+    let lastSimTime = 0;
+    const simInterval = 1000 / 60; // 60 ticks/s
+
+    function animate(time) {
+      requestAnimationFrame(animate);
+
+      // Chạy fixed simulation step theo 60fps
+      if (time - lastSimTime >= simInterval) {
+        lastSimTime = time;
+
+        // Tính vector di chuyển theo phím bấm
+        let moveX = 0;
+        let moveZ = 0;
+        if (keys.w || keys.arrowup) moveZ += 1;
+        if (keys.s || keys.arrowdown) moveZ -= 1;
+        if (keys.a || keys.arrowleft) moveX -= 1;
+        if (keys.d || keys.arrowright) moveX += 1;
+
+        const camYawDeg = (cameraYaw * 180.0) / Math.PI;
+
+        const inputAction = {
+          move: [moveX, moveZ],
+          cam_yaw_deg: camYawDeg,
+          interact: keys.e,
+          pulse: keys.space || keys.f
+        };
+
+        const events = sim.step(inputAction);
+
+        // Phát âm thanh và hiệu ứng theo sự kiện
+        for (const ev of events) {
+          if (ev.name === 'mote_picked') audio.playMoteSound();
+          if (ev.name === 'lantern_lit') audio.playLanternLitSound();
+          if (ev.name === 'pulse') {
+            audio.playPulseSound();
+            pulseRing.position.set(sim.player.pos[0], 0.1, sim.player.pos[2]);
+            pulseAnimProgress = 0.0;
+          }
+          if (ev.name === 'player_hit') audio.playHitSound();
+          if (ev.name === 'game_over') {
+            const overlay = document.getElementById('overlay-screen');
+            overlay.style.display = 'flex';
+            if (ev.data.result === 'won') {
+              document.getElementById('overlay-title').innerText = '🎉 CHIẾN THẮNG!';
+              document.getElementById('overlay-title').style.color = '#e5a952';
+              document.getElementById('overlay-desc').innerText = `Bạn đã thắp sáng tất cả 5 Đèn Lồng Lớn! Tổng điểm: ${sim.score}`;
+            } else {
+              document.getElementById('overlay-title').innerText = '💀 THẤT BẠI';
+              document.getElementById('overlay-title').style.color = '#ef4444';
+              document.getElementById('overlay-desc').innerText = ev.data.reason === 'dawn'
+                ? 'Trời đã rạng sáng nhưng các ngọn đèn chưa kịp thắp sáng...'
+                : 'Mây đã kiệt sức trước sương đen và Bóng Mực...';
+            }
+          }
+        }
+
+        updateHUD();
+      }
+
+      // --- CẬP NHẬT 3D VISUALS ---
+
+      // 1. Cập nhật vị trí Mây & Nón lá
+      mayGroup.position.set(sim.player.pos[0], 0, sim.player.pos[2]);
+
+      // Nhấp nhô khi di chuyển
+      if (keys.w || keys.s || keys.a || keys.d || keys.arrowup || keys.arrowdown) {
+        mayGroup.position.y = Math.sin(time * 0.012) * 0.06;
+      }
+
+      // 2. Cập nhật Đèn Lồng Lớn
+      sim.lanterns.forEach((l, idx) => {
+        const meshObj = lanternMeshes[idx];
+        const light = lanternLights[idx];
+        if (l.lit) {
+          meshObj.frameMat.emissive.setHex(0xffaa22);
+          meshObj.frameMat.emissiveIntensity = 2.5;
+          light.intensity = 4.0;
+          light.color.setHex(0xffbb33);
+        } else {
+          meshObj.frameMat.emissive.setHex(0x331100);
+          meshObj.frameMat.emissiveIntensity = 0.3;
+          light.intensity = 0.5;
+        }
+      });
+
+      // 3. Cập nhật Đom đóm (nhấp nháy và ẩn khi đã nhặt)
+      sim.motes.forEach(m => {
+        const mesh = moteMeshMap.get(m.id);
+        if (mesh) {
+          if (!m.active) {
+            mesh.visible = false;
+          } else {
+            mesh.visible = true;
+            mesh.position.y = 0.6 + Math.sin(time * 0.004 + Number(m.id.slice(1))) * 0.25;
+          }
+        }
+      });
+
+      // 4. Cập nhật Bóng Mực
+      sim.shades.forEach(s => {
+        const group = shadeMeshMap.get(s.id);
+        if (group) {
+          group.position.set(s.pos[0], 0, s.pos[2]);
+          if (s.state === 'stunned') {
+            group.rotation.y += 0.15;
+            group.position.y = Math.abs(Math.sin(time * 0.02)) * 0.2;
+          } else {
+            group.rotation.y = Math.atan2(sim.player.pos[0] - s.pos[0], sim.player.pos[2] - s.pos[2]);
+            group.position.y = 0;
+          }
+        }
+      });
+
+      // 5. Hiệu ứng vòng sóng Pulse lan tỏa
+      if (pulseAnimProgress < 1.0) {
+        pulseAnimProgress += 0.04;
+        const currentRadius = pulseAnimProgress * sim.config.pulse_radius;
+        pulseRing.scale.set(currentRadius, currentRadius, 1);
+        pulseRingMat.opacity = (1.0 - pulseAnimProgress) * 0.9;
+      } else {
+        pulseRingMat.opacity = 0.0;
+      }
+
+      // 6. Camera góc nhìn thứ 3 theo sau Mây
+      const camDist = 9.0;
+      const camHeight = 4.5;
+      const cx = sim.player.pos[0] - Math.sin(cameraYaw) * camDist;
+      const cz = sim.player.pos[2] - Math.cos(cameraYaw) * camDist;
+      camera.position.set(cx, camHeight, cz);
+      camera.lookAt(sim.player.pos[0], 1.2, sim.player.pos[2]);
+
+      renderer.render(scene, camera);
+    }
+
+    requestAnimationFrame(animate);
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>

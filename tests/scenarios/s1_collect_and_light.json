@@ -1,0 +1,24 @@
+{
+  "scenario": {
+    "player": { "pos": [0, 0, 0], "carried": 0, "flames": 3 },
+    "random_motes": false,
+    "random_shades": false,
+    "motes": [
+      [0, 0, 1.0],
+      [0, 0, 2.0],
+      [0, 0, 3.0]
+    ],
+    "shades": [],
+    "lanterns": [
+      { "id": "L1", "pos": [0, 0, 4.0], "deposited": 0, "lit": false }
+    ],
+    "time_left_s": 300
+  },
+  "inputs": {
+    "frames": [
+      { "tick": 0, "move": [0, 1], "cam_yaw_deg": 0 },
+      { "tick": 60, "move": [0, 0], "interact": true },
+      { "tick": 61, "interact": false }
+    ]
+  }
+}

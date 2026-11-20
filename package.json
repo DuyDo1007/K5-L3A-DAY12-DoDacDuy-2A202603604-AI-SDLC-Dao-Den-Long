@@ -1,0 +1,24 @@
+{
+  "name": "dao-den-long",
+  "version": "1.0.0",
+  "description": "Day 12 AI-SDLC: Game 3D Đảo Đèn Lồng - K5 L3A",
+  "type": "module",
+  "main": "src/core/index.js",
+  "scripts": {
+    "start": "node src/client/server.js",
+    "test": "node tests/run_tests.js",
+    "test:headless": "node src/headless/cli.js --scenario tests/scenarios/phase-1-sample.json",
+    "headless": "node src/headless/cli.js",
+    "verify": "node scripts/verify_phase.js",
+    "benchmark": "node scripts/benchmark.js"
+  },
+  "keywords": [
+    "ai-sdlc",
+    "dao-den-long",
+    "threejs",
+    "game-3d",
+    "headless"
+  ],
+  "author": "Đỗ Đắc Duy (2A202603604)",
+  "license": "MIT"
+}

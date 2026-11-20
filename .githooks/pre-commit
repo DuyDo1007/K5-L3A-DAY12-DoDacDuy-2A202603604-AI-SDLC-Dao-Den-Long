@@ -1,0 +1,20 @@
+#!/bin/sh
+# Pre-commit hook: Chặn commit nếu test đỏ hoặc phát hiện lộ API key/.env
+
+echo "=== PRE-COMMIT VERIFICATION GATE ==="
+
+# 1. Kiểm tra secret / API key / .env
+if git diff --cached --name-only | grep -E "(\.env|\.key|\.pem)$"; then
+  echo "LỖI: Phát hiện file nhạy cảm trong commit. Bị chặn theo RULES.md mục 9!"
+  exit 1
+fi
+
+# 2. Chạy nhanh bộ test
+node tests/run_tests.js
+if [ $? -ne 0 ]; then
+  echo "LỖI: Unit test thất bại! Không được commit khi test đang đỏ."
+  exit 1
+fi
+
+echo "=== PRE-COMMIT: ĐẠT! TIẾP TỤC COMMIT. ==="
+exit 0
