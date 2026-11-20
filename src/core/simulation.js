@@ -520,13 +520,22 @@ export class WorldSimulation {
 
       // Vận tốc di chuyển ngang
       let speed = (this.player.charmTicksLeft > 0) ? this.config.charm_speed : this.config.player_speed;
+      let dirX = worldX;
+      let dirZ = worldZ;
+
       if (this.player.dashTicksLeft > 0) {
         speed = this.config.dash_speed;
         this.player.dashTicksLeft--;
+        // Nếu đứng yên thì hướng lướt là hướng nhân vật đang quay mặt
+        if (moveMag <= 0.001) {
+          const facingRad = ((this.player.facingDeg || 0) * Math.PI) / 180.0;
+          dirX = Math.sin(facingRad);
+          dirZ = Math.cos(facingRad);
+        }
       }
 
-      let vx = worldX * speed;
-      let vz = worldZ * speed;
+      let vx = dirX * speed;
+      let vz = dirZ * speed;
 
       // Nếu đang trong bục nhảy (launch velocity), giữ nguyên vận tốc phóng ngang tới khi chạm đất
       if (this.player.inLaunchPad) {

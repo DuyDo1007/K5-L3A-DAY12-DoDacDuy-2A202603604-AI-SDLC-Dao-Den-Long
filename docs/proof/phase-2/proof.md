@@ -1,6 +1,6 @@
 # Bằng chứng Kiểm chứng — Phase 2: Ticket-02 (Test Contract v1.1)
 
-- **Ngày giờ kiểm chứng:** `2026-11-20T08:25:36.527Z`
+- **Ngày giờ kiểm chứng:** `2026-11-20T08:40:49.418Z`
 - **Lệnh tái lập nhanh:** `node scripts/verify_phase.js --phase 2`
 - **Môi trường:** Node.js `v24.11.0` on `win32 x64`
 
@@ -18,7 +18,7 @@
 | **P2-R8** | Rơi khỏi đảo (Y < -10) mất 1 flame, mất đom đóm và hồi sinh | Unit test rơi đảo, sự kiện `player_hit` (by: fall, lost: 5) | [`unit-tests.log`](unit-tests.log) test 9 | **ĐẠT** |
 | **P2-R9** | Mở rộng 3 Đêm: Đêm 1 (Đảo Bến), Đêm 2 (Đảo Cau), Đêm 3 (Đảo Chuông) | Chạy headless cả 3 Đêm, snapshot đầy đủ mảng mới theo v1.1 | [`night1-regression.jsonl`](night1-regression.jsonl), [`night2-daocau.jsonl`](night2-daocau.jsonl), [`night3-daochuong.jsonl`](night3-daochuong.jsonl) | **ĐẠT** |
 | **P2-R10** | Tính tất định 100% Contract v1.1 giữa 2 lần chạy | So khớp mã băm SHA-256 byte-for-byte | [`determinism.txt`](determinism.txt) | **ĐẠT** |
-| **P2-R11** | Hiệu năng Headless: 1 Đêm đầy đủ (18.000 ticks) chạy trong ≤ 30s | Chạy 18.000 ticks trong ~0.06s (nhanh hơn yêu cầu 30x) | [`perf-run.txt`](perf-run.txt) | **ĐẠT** |
+| **P2-R11** | Hiệu năng Headless: 1 Đêm đầy đủ (18.000 ticks) chạy trong ≤ 30s | Chạy 18.000 ticks trong ~0.13s (nhanh hơn yêu cầu 30x) | [`perf-run.txt`](perf-run.txt) | **ĐẠT** |
 
 ## 2. Ghi nhận Hồi quy & Trung thực
 - Toàn bộ các kiểm thử hồi quy của Phase 1 vẫn ĐẠT sau khi chuyển sang hệ số chuẩn hóa.
