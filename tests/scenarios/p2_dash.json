@@ -1,0 +1,14 @@
+{
+  "scenario": {
+    "player": { "pos": [0, 0, 0], "carried": 0, "flames": 3 },
+    "random_motes": false,
+    "random_shades": false
+  },
+  "inputs": {
+    "frames": [
+      { "tick": 0, "move": [0, 1] },
+      { "tick": 5, "dash": true },
+      { "tick": 6, "dash": false }
+    ]
+  }
+}

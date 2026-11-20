@@ -197,11 +197,11 @@
   </div>
 
   <div id="controls-hint">
-    <span class="kbd">W/A/S/D</span> hoặc <span class="kbd">Mũi tên</span>: Di chuyển<br>
-    <span class="kbd">Kéo chuột</span>: Xoay camera góc nhìn thứ 3<br>
-    <span class="kbd">E</span>: Nạp đom đóm vào Đèn Lồng<br>
-    <span class="kbd">Space</span> / <span class="kbd">F</span>: Tỏa sáng (Pulse) xua Bóng Mực<br>
-    <span class="kbd">R</span>: Chơi lại
+    <span class="kbd">W/A/S/D</span>: Di chuyển · <span class="kbd">Shift</span>: Lướt (Dash)<br>
+    <span class="kbd">Space</span>: Nhảy · <span class="kbd">F</span>: Tỏa sáng (Pulse)<br>
+    <span class="kbd">E</span>: Nạp đom đóm vào Đèn Lồng (10 đom đóm)<br>
+    <span class="kbd">Esc / P</span>: Tạm dừng · <span class="kbd">R</span>: Chơi lại<br>
+    <span class="kbd">1 / 2 / 3</span>: Chọn Đêm (1: Đảo Bến, 2: Đảo Cau, 3: Đảo Chuông)
   </div>
 
   <div id="pulse-btn" title="Tỏa sáng xua đuổi Bóng Mực (Phím SPACE hoặc F)">
@@ -518,21 +518,31 @@
     });
 
     // --- INPUT CONTROLS ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const activeNight = parseInt(urlParams.get('night') || '1', 10);
+
     const keys = {
       w: false, a: false, s: false, d: false,
       arrowup: false, arrowleft: false, arrowdown: false, arrowright: false,
-      e: false, space: false, f: false
+      e: false, space: false, f: false, shift: false, p: false
     };
 
     window.addEventListener('keydown', (e) => {
       audio.init();
       const k = e.key.toLowerCase();
+      if (k === ' ') keys.space = true;
+      if (k === 'shift') keys.shift = true;
       if (keys.hasOwnProperty(k)) keys[k] = true;
       if (k === 'r') location.reload();
+      if (k === '1') window.location.href = '/?night=1';
+      if (k === '2') window.location.href = '/?night=2';
+      if (k === '3') window.location.href = '/?night=3';
     });
 
     window.addEventListener('keyup', (e) => {
       const k = e.key.toLowerCase();
+      if (k === ' ') keys.space = false;
+      if (k === 'shift') keys.shift = false;
       if (keys.hasOwnProperty(k)) keys[k] = false;
     });
 

@@ -1,0 +1,17 @@
+{
+  "scenario": {
+    "player": { "pos": [0, 0, 0], "carried": 6, "flames": 3 },
+    "random_motes": false,
+    "random_shades": false,
+    "drifters": [
+      { "id": "D1", "pos": [1.0, 0, 0], "state": "chase", "stolen": 0 }
+    ]
+  },
+  "inputs": {
+    "frames": [
+      { "tick": 0, "move": [0, 0] },
+      { "tick": 2, "pulse": true },
+      { "tick": 3, "pulse": false }
+    ]
+  }
+}
