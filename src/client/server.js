@@ -4,6 +4,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { getLeaderboard, addScore } from '../core/leaderboard.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,6 +26,40 @@ const PORT = process.env.PORT || 3000;
 
 const server = http.createServer((req, res) => {
   let reqPath = req.url.split('?')[0];
+
+  // API LEADERBOARD (Ticket-04 Phase 4)
+  if (reqPath === '/api/leaderboard') {
+    if (req.method === 'GET') {
+      const data = getLeaderboard();
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      });
+      res.end(JSON.stringify(data));
+      return;
+    }
+
+    if (req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => { body += chunk; });
+      req.on('end', () => {
+        try {
+          const payload = JSON.parse(body || '{}');
+          const result = addScore(payload);
+          res.writeHead(result.success ? 200 : 400, {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          });
+          res.end(JSON.stringify(result));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: false, reason: 'Invalid JSON payload' }));
+        }
+      });
+      return;
+    }
+  }
+
   if (reqPath === '/' || reqPath === '') {
     reqPath = '/src/client/index.html';
   }

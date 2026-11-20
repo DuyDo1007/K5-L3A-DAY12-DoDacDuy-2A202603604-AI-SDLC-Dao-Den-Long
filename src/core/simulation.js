@@ -1354,6 +1354,9 @@ export class WorldSimulation {
     this.prevButtons.pause = !!input.pause;
 
     this.events.push(...stepEvents);
+    if (this.events.length > 500) {
+      this.events.splice(0, this.events.length - 200);
+    }
     return stepEvents;
   }
 }

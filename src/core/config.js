@@ -1,8 +1,8 @@
 /**
- * Cấu hình tham số mô phỏng chuẩn hóa cho Đảo Đèn Lồng (Phase 3: Test Contract v1.2)
+ * Cấu hình tham số mô phỏng chuẩn hóa cho Đảo Đèn Lồng (Phase 4: Test Contract v1.3)
  */
 export const DEFAULT_CONFIG = {
-  contract_version: "1.2",
+  contract_version: "1.3",
 
   // Bản đồ & Thời lượng các Đêm (Ticket-03: 240 / 270 / 300 s)
   islandRadius_night1: 40.0,

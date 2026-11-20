@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { WorldSimulation } from '../core/simulation.js';
+import { exportLeaderboard } from '../core/leaderboard.js';
 
 function parseArgs(args) {
   const options = {
@@ -12,7 +13,8 @@ function parseArgs(args) {
     inputs: null,
     ticks: 100,
     out: null,
-    snapshotEvery: 10
+    snapshotEvery: 10,
+    exportLeaderboard: null
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -31,6 +33,8 @@ function parseArgs(args) {
       options.out = args[++i];
     } else if (arg === '--snapshot-every' && i + 1 < args.length) {
       options.snapshotEvery = parseInt(args[++i], 10);
+    } else if ((arg === '--export-leaderboard' || arg === '-e') && i + 1 < args.length) {
+      options.exportLeaderboard = args[++i];
     }
   }
 
@@ -149,6 +153,10 @@ export function runSimulation(options) {
 // Chạy trực tiếp từ CLI
 if (process.argv[1] && (process.argv[1].endsWith('cli.js') || process.argv[1].endsWith('cli.mjs'))) {
   const options = parseArgs(process.argv.slice(2));
+  if (options.exportLeaderboard) {
+    exportLeaderboard(options.exportLeaderboard);
+    process.exit(0);
+  }
   const result = runSimulation(options);
   if (!options.out) {
     console.log(result.lines.join('\n'));

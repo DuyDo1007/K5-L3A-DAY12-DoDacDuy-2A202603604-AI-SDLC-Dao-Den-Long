@@ -1,0 +1,44 @@
+[
+  {
+    "name": "DoDacDuy",
+    "score": 850,
+    "nights_won": 3,
+    "achieved_at": "2026-11-20T10:00:00.000Z",
+    "seed": 42
+  },
+  {
+    "name": "Naruto_Kun",
+    "score": 720,
+    "nights_won": 2,
+    "achieved_at": "2026-11-20T11:15:00.000Z",
+    "seed": 100
+  },
+  {
+    "name": "HoiAn_Master",
+    "score": 640,
+    "nights_won": 2,
+    "achieved_at": "2026-11-20T12:30:00.000Z",
+    "seed": 888
+  },
+  {
+    "name": "May_Runner",
+    "score": 510,
+    "nights_won": 1,
+    "achieved_at": "2026-11-20T13:45:00.000Z",
+    "seed": 777
+  },
+  {
+    "name": "ShadowHunter",
+    "score": 380,
+    "nights_won": 1,
+    "achieved_at": "2026-11-20T14:20:00.000Z",
+    "seed": 123
+  },
+  {
+    "name": "ToiLaAi",
+    "score": 5,
+    "nights_won": 0,
+    "achieved_at": "2026-11-20T10:02:34.292Z",
+    "seed": 42
+  }
+]

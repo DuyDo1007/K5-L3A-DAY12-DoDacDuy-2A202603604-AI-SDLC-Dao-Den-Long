@@ -1,87 +1,102 @@
-# Đảo Đèn Lồng (Lantern Island) — 3D Game & AI SDLC
+# Đảo Đèn Lồng (Lantern Island) — Phiên bản v1.0.0 (Bình minh)
 
-> **Video Demo:** [Xem Video Demo (.mp4)](docs/demo/demo.mp4) *(hoặc đính kèm tại GitHub Release v1.0.0)*  
-> **Học viên:** Đỗ Đắc Duy · **MSSV:** `2A202603604` · **Lớp:** `K5-L3A`  
-> **Bài làm:** Cá nhân · Áp dụng SDLC và Harness AI xây dựng game 3D qua 4 Phase tuân thủ Test Contract.
+> **Dự án:** Game 3D phong cách Á Đông ấm cúng · AI SDLC Lab Day 12  
+> **Tác giả:** Đỗ Đắc Duy · **MSSV:** `2A202603604` · **Lớp:** `K5-L3A`  
+> **Phiên bản:** `v1.0.0` (Contract v1.3) · **Trạng thái:** Sẵn sàng phát hành (Release Ready)  
+> **Video Demo:** `docs/demo/demo.mp4` (hoặc xem trực tiếp trên GitHub Release v1.0.0)
 
 ---
 
 ## 1. Giới thiệu Game
-**Đảo Đèn Lồng** là game 3D góc nhìn thứ ba ấm cúng, đậm chất cổ tích Việt Nam. Người chơi hóa thân thành **Mây** — người giữ đèn nhỏ tuổi đội nón lá có treo chiếc đèn lồng nhỏ. Trong đêm sương đen bao phủ Đảo Bến, Mây phải thu thập những đốm sáng (**đom đóm**) để thắp sáng lại **5 Đèn Lồng Lớn**, đồng thời né tránh và dùng ánh sáng tỏa ra (**Pulse**) để xua đuổi các sinh vật **Bóng Mực** trong màn đêm.
+**Đảo Đèn Lồng** đưa người chơi vào vai **Mây** — người giữ đèn nhỏ tuổi trong hành trình thắp sáng quần đảo trước khi bình minh ló rạng. Trải qua 3 Đêm đầy thử thách:
+- **Đêm 1 (Đảo Bến):** Làm quen với việc thu thập đom đóm, thắp 5 đèn lồng và né tránh sinh vật Bóng Mực.
+- **Đêm 2 (Đảo Cau):** Vượt qua 2 hòn đảo nối bằng cầu tre và bục nhảy phóng cao tốc, đối phó với Gió Lạc cướp đom đóm.
+- **Đêm 3 (Đảo Chuông):** Chinh phục địa hình 3 tầng giật cấp, gió lốc quét định kỳ và giữ cho các ngọn đèn không bị cạn dầu.
 
-- **Thắng:** Thắp sáng toàn bộ 5 Đèn Lồng Lớn trước khi trời sáng.
-- **Thua:** Hết lửa sinh mệnh (mất hết 3 flames) hoặc hết thời gian đêm (300 giây).
+Mục tiêu cốt lõi: **Giữ cho ít nhất 60% số đèn lồng trên đảo sáng rực cho tới khi bình minh xuất hiện!**
 
 ---
 
-## 2. Cài đặt và Chạy Game (Tối đa 3 lệnh)
+## 2. Cài đặt & Khởi động Nhanh (Tối đa 3 Lệnh)
 
-Game chạy được trên cả **macOS, Linux và Windows** mà không cần cấu hình phức tạp:
+Hệ thống hỗ trợ Windows, macOS và Linux:
 
 ```bash
-# 1. Cài đặt phụ thuộc
+# Lệnh 1: Cài đặt thư viện phụ thuộc
 npm install
 
-# 2. Chạy kiểm thử tự động & kiểm chứng tính tất định
+# Lệnh 2: Chạy bộ kiểm thử tự động toàn diện
 npm test
 
-# 3. Khởi động game 3D trên trình duyệt
+# Lệnh 3: Khởi động giao diện 3D trên trình duyệt
 npm start
 ```
-Truy cập: `http://localhost:3000` trên trình duyệt để trải nghiệm game 3D.
+Mở trình duyệt tại địa chỉ: `http://localhost:3000` để trải nghiệm trực tiếp.
 
 ---
 
-## 3. Điều khiển Game
-- **W / A / S / D** hoặc **Phím Mũi Tên:** Di chuyển nhân vật Mây theo hướng camera.
-- **Kéo chuột trái:** Xoay camera 3D góc nhìn thứ ba quanh Mây.
-- **Phím E:** Tương tác nạp đom đóm vào Đèn Lồng Lớn khi đứng gần.
-- **Space** hoặc **Phím F:** Tỏa sáng (Pulse) tiêu tốn 1 đom đóm, đẩy lùi 4m và làm choáng Bóng Mực trong 3 giây.
-- **Phím R:** Chơi lại màn chơi.
+## 3. Cấu hình Tối thiểu & Đề nghị
+- **Hệ điều hành:** Windows 10/11, macOS 12+, hoặc Linux (Ubuntu 20.04+).
+- **Môi trường thực thi:** Node.js v18.0.0 trở lên.
+- **Phần cứng:** CPU 2 nhân 2.0 GHz, RAM 4 GB, card đồ họa hỗ trợ WebGL 1.0/2.0.
+- **Màn hình đề nghị:** Độ phân giải 1280×720 trở lên.
 
 ---
 
-## 4. Cơ chế Tính Điểm (Scoring System)
-- **Nhặt 1 đom đóm (Mote):** `+10 điểm`
-- **Làm choáng 1 Bóng Mực (Pulse Stun):** `+20 điểm`
-- **Thắp sáng 1 Đèn Lồng Lớn:** `+100 điểm`
-- **Thưởng Thắng Màn (Win Bonus):**
-  - `+2 điểm` cho mỗi giây còn lại trước bình minh (`Math.floor(time_left_s) * 2`)
-  - `+50 điểm` cho mỗi ngọn lửa sinh mệnh còn giữ (`flames * 50`)
+## 4. Các Lệnh Kỹ thuật & Kiểm chứng Chuẩn
 
----
+Toàn bộ quy trình kiểm chứng đều được tự động hóa tuân thủ **Test Contract v1.3**:
 
-## 5. Chế độ Headless & Test Contract v1.0
-Game được thiết kế theo kiến trúc **Headless-First**, logic mô phỏng tách biệt hoàn toàn khỏi đồ họa (`src/core/`), chạy ở tần số cố định **60 tick/giây**:
-
-### Lệnh chạy Headless:
 ```bash
-node src/headless/cli.js --seed 42 --night 1 --scenario tests/scenarios/s1_scenario.json --inputs tests/scenarios/s1_inputs.json --ticks 70 --out docs/proof/phase-1/s1-collect-light.jsonl
+# Chạy mô phỏng Headless một Đêm bất kỳ
+npm run headless -- --night 1 --seed 42 --ticks 600
+
+# Chạy bài đo hiệu năng Benchmark (chuẩn 30s)
+npm run bench
+
+# Chạy bài kiểm tra độ bền Soak Test (10 Đêm liên tiếp)
+npm run soak
+
+# Xuất dữ liệu Bảng Xếp Hạng cục bộ ra tệp JSON
+npm run leaderboard -- --export data/export_leaderboard.json
+
+# Chạy toàn bộ quy trình kiểm chứng & xuất bằng chứng Phase 4
+npm run verify -- --phase 4
 ```
 
-### Tự động kiểm chứng toàn bộ Phase:
-```bash
-node scripts/verify_phase.js --phase 1
-```
+---
 
-Tệp cấu hình hợp đồng kiểm thử: [`game.contract.json`](game.contract.json)
+## 5. Bảng Điều khiển & Tính năng Dễ Tiếp Cận (Accessibility)
+
+### Phím Điều khiển Mặc định:
+- **W / A / S / D:** Di chuyển nhân vật Mây theo hướng camera.
+- **Chuột trái (Kéo):** Xoay camera 3D xung quanh nhân vật.
+- **Space:** Nhảy lên (vận tốc 7.0 m/s).
+- **Shift (hoặc Q):** Lướt nhanh (Dash 14.0 m/s trong 0.2s, hồi chiêu 1.5s).
+- **E:** Tương tác thắp đèn / châm thêm dầu khi đứng gần đèn.
+- **F:** Tỏa Sáng (Pulse) tiêu hao 3 đom đóm làm choáng Bóng Mực và buộc Gió Lạc nhả đom đóm.
+- **P:** Tạm dừng (Pause) / Tiếp tục (Resume).
+- **R:** Chơi lại màn chơi.
+
+### Tính năng Hỗ trợ Tiếp cận Cao cấp:
+- **Đổi phím tự do (Key Rebinding):** Tùy biến mọi phím bấm trong mục Cài đặt, tự phát hiện trùng phím và có nút khôi phục mặc định.
+- **Phụ đề & Chỉ báo Hình ảnh:** Hiển thị mũi tên chỉ hướng mép màn hình khi có Bóng Mực tiếp cận, cảnh báo gió lốc Đêm 3, cảnh báo 10 giây cuối và cảnh báo đèn cạn dầu (< 30 fuel).
+- **Giảm chuyển động (Reduce Motion):** Tắt hoàn toàn rung lắc camera và chớp màn hình.
+- **Tùy chỉnh cỡ chữ & Chế độ màu:** Hỗ trợ cỡ chữ lớn x1.25 và chế độ tương phản/mù màu.
 
 ---
 
-## 6. Sáng tạo của tôi (Creative Features)
-Tuân thủ quy định tại mục 3 của PRD-0 và mục F của RUBRIC (sáng tạo an toàn, **không làm đổi đầu ra Headless**):
-1. **Tạo hình Nhân vật Mây Đậm Nét Văn Hóa:** Mây mặc áo lam truyền thống, đội **nón lá** hình chóp nón, trên đỉnh nón treo chiếc đèn lồng nhỏ phát ra ánh sáng vàng cam ấm áp soi đường trong đêm.
-2. **Âm thanh Thủ tục Độc lập (Procedural WebAudio):** Tự tổng hợp âm thanh chuông gió nhẹ nhàng khi nhặt đom đóm, chuông chùa trầm ấm khi thắp đèn, và tiếng sóng âm khi dùng Pulse mà không dùng file audio ngoài, 100% an toàn bản quyền.
-3. **Hiệu ứng Vòng Sóng Xung Kích (Pulse Shockwave):** Khi bấm Space/F, một vòng sóng ánh sáng vàng kim mở rộng quét sạch bóng đêm và đẩy lùi Bóng Mực.
-
-*Cam kết: Tất cả các hiệu ứng trên chỉ nằm ở tầng hiển thị `src/client/`, chế độ headless `src/core/` vẫn đảm bảo tính tất định 100% theo đúng Test Contract.*
+## 6. Bảng Xếp Hạng Cục Bộ (Leaderboard)
+- Hệ thống tự động ghi nhận Top 10 điểm số cao nhất của người chơi tại `data/leaderboard.json`.
+- Kiểm tra tính hợp lệ của tên người chơi (3–12 ký tự chữ, số hoặc gạch dưới).
+- Hỗ trợ xem trực tiếp qua nút **🏆 Bảng Xếp Hạng** tại màn hình chính và tự động hiện form lưu điểm khi kết thúc đêm chơi.
 
 ---
 
-## 7. Liên kết Tài liệu & Bằng chứng
-- [Kế hoạch Dự án (PLAN.md)](PLAN.md)
-- [Hướng dẫn AI Agent (AGENTS.md)](AGENTS.md)
-- [Bảng Truy vết Bằng chứng Phase 1 (docs/proof/phase-1/proof.md)](docs/proof/phase-1/proof.md)
-- [Giả định & Thay đổi (docs/notes/assumptions-and-changes.md)](docs/notes/assumptions-and-changes.md)
-- [Nhật ký Token & AI (docs/notes/ai-log-and-retro.md)](docs/notes/ai-log-and-retro.md)
-- [Tài sản & Bản quyền (CREDITS.md)](CREDITS.md)
+## 7. Liên kết Bằng chứng & Tài liệu Đóng gói
+- [Báo cáo Retrospective (docs/notes/retro-v1.0.0.md)](docs/notes/retro-v1.0.0.md)
+- [Bằng chứng Nghiệm thu Phase 4 (docs/proof/phase-4/proof.md)](docs/proof/phase-4/proof.md)
+- [Hợp đồng Kiểm thử v1.3 (game.contract.json)](game.contract.json)
+- [Lịch sử Thay đổi (CHANGELOG.md)](CHANGELOG.md)
+- [Nguồn & Bản quyền (CREDITS.md)](CREDITS.md)
+- [Giấy phép Mã nguồn (LICENSE)](LICENSE)

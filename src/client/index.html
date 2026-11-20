@@ -310,12 +310,18 @@
     </div>
   </div>
 
-  <!-- NIGHT SELECTOR -->
+  <!-- NIGHT SELECTOR & TOP BUTTONS -->
   <div id="night-selector">
     <button class="night-btn" id="btn-night-1">Đêm 1: Đảo Bến</button>
     <button class="night-btn" id="btn-night-2">Đêm 2: Đảo Cau</button>
     <button class="night-btn" id="btn-night-3">Đêm 3: Đảo Chuông</button>
+    <button class="night-btn" id="btn-leaderboard" style="border-color: #f59e0b; color: #fde047;">🏆 Bảng Xếp Hạng</button>
     <button class="night-btn" id="btn-settings" style="border-color: #38bdf8; color: #7dd3fc;">⚙ Cài đặt</button>
+  </div>
+
+  <!-- SUBTITLE & VISUAL INDICATORS BANNER (ACCESSIBILITY) -->
+  <div id="visual-indicator" style="display:none; position:absolute; top:85px; left:50%; transform:translateX(-50%); background:rgba(15,23,42,0.92); border:2px solid #ef4444; border-radius:18px; padding:8px 24px; font-weight:800; font-size:16px; color:#ffffff; z-index:30; box-shadow:0 0 25px rgba(239,68,68,0.6); backdrop-filter:blur(8px); pointer-events:none;">
+    ⚠ CẢNH BÁO
   </div>
 
   <!-- INTERACT PROMPT BADGE -->
@@ -323,20 +329,110 @@
     [E] Nạp Đèn
   </div>
 
-  <!-- SETTINGS MODAL -->
+  <!-- LEADERBOARD MODAL -->
+  <div id="leaderboard-modal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,9,20,0.85); backdrop-filter: blur(8px); z-index: 130; align-items: center; justify-content: center;">
+    <div style="background: linear-gradient(145deg, rgba(16,26,48,0.98), rgba(8,14,28,0.98)); border: 2px solid #f59e0b; border-radius: 20px; padding: 32px 36px; width: 92%; max-width: 600px; box-shadow: 0 0 45px rgba(245,158,11,0.3); color: #e2e8f0;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h2 style="margin: 0; font-size: 22px; color: #f59e0b; display: flex; align-items: center; gap: 8px;">🏆 BẢNG XẾP HẠNG TOP 10</h2>
+        <button id="btn-close-leaderboard" style="background:none; border:none; color:#cbd5e1; font-size:22px; cursor:pointer;">✕</button>
+      </div>
+      <table style="width:100%; border-collapse:collapse; font-size:14px; text-align:left;">
+        <thead>
+          <tr style="border-bottom: 2px solid rgba(245,158,11,0.4); color:#fde047;">
+            <th style="padding:8px 6px;">#</th>
+            <th style="padding:8px 6px;">Tên Người Chơi</th>
+            <th style="padding:8px 6px; text-align:right;">Điểm Số</th>
+            <th style="padding:8px 6px; text-align:center;">Đêm Thắng</th>
+            <th style="padding:8px 6px; text-align:right;">Thời Gian</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-tbody">
+          <!-- Rendered via JS -->
+        </tbody>
+      </table>
+      <div style="text-align: right; margin-top: 20px;">
+        <button id="btn-close-leaderboard-bottom" class="btn-action" style="padding: 10px 24px; font-size: 14px; background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 15px rgba(245,158,11,0.5);">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL (ACCESSIBILITY & KEY REBINDING) -->
   <div id="settings-modal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,9,20,0.85); backdrop-filter: blur(8px); z-index: 120; align-items: center; justify-content: center;">
-    <div style="background: linear-gradient(145deg, rgba(16,26,48,0.98), rgba(8,14,28,0.98)); border: 2px solid #38bdf8; border-radius: 20px; padding: 32px 40px; width: 90%; max-width: 460px; box-shadow: 0 0 40px rgba(56,189,248,0.3); color: #e2e8f0;">
-      <h2 style="margin-top: 0; font-size: 22px; color: #38bdf8; display: flex; align-items: center; gap: 8px;">⚙ Cài Đặt Trò Chơi</h2>
+    <div style="background: linear-gradient(145deg, rgba(16,26,48,0.98), rgba(8,14,28,0.98)); border: 2px solid #38bdf8; border-radius: 20px; padding: 28px 36px; width: 92%; max-width: 540px; max-height: 90vh; overflow-y: auto; box-shadow: 0 0 40px rgba(56,189,248,0.3); color: #e2e8f0;">
+      <h2 style="margin-top: 0; font-size: 22px; color: #38bdf8; display: flex; align-items: center; gap: 8px;">⚙ Cài Đặt Trò Chơi & Dễ Tiếp Cận</h2>
       
-      <div style="margin: 20px 0; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+      <!-- Colorblind Mode -->
+      <div style="margin: 14px 0; display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: rgba(255,255,255,0.05); border-radius: 10px;">
         <div>
           <div style="font-weight: 700; font-size: 14px;">Bảng màu dễ phân biệt / Chế độ mù màu</div>
-          <div style="font-size: 11px; color: #94a3b8;">Đổi màu mắt Bóng Mực thành #00B3FF, cảnh báo trắng ⚠, đèn xẹp 20%</div>
+          <div style="font-size: 11px; color: #94a3b8;">Mắt Bóng Mực sang #00B3FF, cảnh báo trắng ⚠, đèn xẹp 20%</div>
         </div>
         <input type="checkbox" id="cb-colorblind" style="width: 22px; height: 22px; cursor: pointer; accent-color: #00b3ff;">
       </div>
 
-      <div style="margin: 20px 0; display: flex; flex-direction: column; gap: 8px;">
+      <!-- Reduce Motion -->
+      <div style="margin: 14px 0; display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+        <div>
+          <div style="font-weight: 700; font-size: 14px;">Giảm chuyển động (Reduce Motion)</div>
+          <div style="font-size: 11px; color: #94a3b8;">Tắt rung camera và hiệu ứng chớp màn hình khi bị đánh</div>
+        </div>
+        <input type="checkbox" id="cb-reducemotion" style="width: 22px; height: 22px; cursor: pointer; accent-color: #38bdf8;">
+      </div>
+
+      <!-- Large UI Text -->
+      <div style="margin: 14px 0; display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+        <div>
+          <div style="font-weight: 700; font-size: 14px;">Cỡ chữ lớn (×1.25)</div>
+          <div style="font-size: 11px; color: #94a3b8;">Tăng cỡ chữ giao diện HUD và thông báo hỗ trợ thị giác</div>
+        </div>
+        <input type="checkbox" id="cb-largetext" style="width: 22px; height: 22px; cursor: pointer; accent-color: #38bdf8;">
+      </div>
+
+      <!-- Key Rebinding Section -->
+      <div style="margin: 16px 0; padding: 12px 14px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <div style="font-weight: 700; font-size: 14px; color: #38bdf8;">Đổi Phím Điều Khiển</div>
+          <button id="btn-reset-keys" style="background:none; border:1px solid #94a3b8; color:#cbd5e1; border-radius:6px; padding:3px 10px; font-size:11px; cursor:pointer;">Khôi phục mặc định</button>
+        </div>
+        <div id="key-conflict-warning" style="display:none; color:#ef4444; font-size:12px; font-weight:bold; margin-bottom:8px;">⚠ Phát hiện trùng phím điều khiển! Vui lòng chọn phím khác.</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Tiến (Forward):</span>
+            <input type="text" id="bind-up" maxlength="10" style="width:70px; text-align:center; padding:3px; background:#0f172a; border:1px solid #38bdf8; color:#fff; border-radius:4px;">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Lùi (Backward):</span>
+            <input type="text" id="bind-down" maxlength="10" style="width:70px; text-align:center; padding:3px; background:#0f172a; border:1px solid #38bdf8; color:#fff; border-radius:4px;">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Sang Trái:</span>
+            <input type="text" id="bind-left" maxlength="10" style="width:70px; text-align:center; padding:3px; background:#0f172a; border:1px solid #38bdf8; color:#fff; border-radius:4px;">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Sang Phải:</span>
+            <input type="text" id="bind-right" maxlength="10" style="width:70px; text-align:center; padding:3px; background:#0f172a; border:1px solid #38bdf8; color:#fff; border-radius:4px;">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Nhảy (Jump):</span>
+            <input type="text" id="bind-jump" maxlength="10" style="width:70px; text-align:center; padding:3px; background:#0f172a; border:1px solid #38bdf8; color:#fff; border-radius:4px;">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Lướt (Dash):</span>
+            <input type="text" id="bind-dash" maxlength="10" style="width:70px; text-align:center; padding:3px; background:#0f172a; border:1px solid #38bdf8; color:#fff; border-radius:4px;">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Tương tác (Nạp đèn):</span>
+            <input type="text" id="bind-interact" maxlength="10" style="width:70px; text-align:center; padding:3px; background:#0f172a; border:1px solid #38bdf8; color:#fff; border-radius:4px;">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Tỏa Sáng (Pulse):</span>
+            <input type="text" id="bind-pulse" maxlength="10" style="width:70px; text-align:center; padding:3px; background:#0f172a; border:1px solid #38bdf8; color:#fff; border-radius:4px;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Sliders Volume & Sens -->
+      <div style="margin: 14px 0; display: flex; flex-direction: column; gap: 6px;">
         <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600;">
           <span>Âm lượng WebAudio:</span>
           <span id="val-volume">80%</span>
@@ -344,7 +440,7 @@
         <input type="range" id="slider-volume" min="0" max="100" value="80" style="accent-color: #38bdf8; cursor: pointer;">
       </div>
 
-      <div style="margin: 20px 0; display: flex; flex-direction: column; gap: 8px;">
+      <div style="margin: 14px 0; display: flex; flex-direction: column; gap: 6px;">
         <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600;">
           <span>Độ nhạy xoay chuột:</span>
           <span id="val-sensitivity">1.0x</span>
@@ -352,7 +448,7 @@
         <input type="range" id="slider-sensitivity" min="5" max="25" value="10" style="accent-color: #38bdf8; cursor: pointer;">
       </div>
 
-      <div style="text-align: right; margin-top: 24px;">
+      <div style="text-align: right; margin-top: 20px;">
         <button id="btn-close-settings" class="btn-action" style="padding: 10px 24px; font-size: 14px; background: linear-gradient(135deg, #0284c7, #0369a1); box-shadow: 0 4px 15px rgba(2,132,199,0.5);">Đóng & Lưu</button>
       </div>
     </div>
@@ -394,8 +490,22 @@
   <div id="overlay-screen" style="display: none;">
     <div class="overlay-content">
       <div class="overlay-title" id="overlay-title">Chiến Thắng!</div>
-      <div class="overlay-desc" id="overlay-desc">Mây đã thắp sáng toàn bộ Đèn Lồng Lớn, xua tan sương đen khỏi hòn đảo!</div>
-      <button class="btn-action" id="btn-restart">Chơi Lại</button>
+      <div class="overlay-desc" id="overlay-desc">Mây đã bảo vệ đảo sáng tới bình minh!</div>
+
+      <!-- Form nhập tên lưu Bảng Xếp Hạng (Phase 4) -->
+      <div id="save-score-section" style="margin: 20px 0; padding: 14px; background: rgba(255,255,255,0.06); border-radius: 12px; border: 1px solid #f59e0b;">
+        <div style="font-weight: 700; font-size: 14px; color: #fde047; margin-bottom: 6px;">LƯU ĐIỂM VÀO BẢNG XẾP HẠNG</div>
+        <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+          <input type="text" id="input-player-name" placeholder="Tên (3-12 ký tự)" maxlength="12" style="background:#0f172a; border:1px solid #f59e0b; color:#fff; padding:8px 12px; border-radius:8px; font-weight:700; width:180px;">
+          <button id="btn-save-score" class="btn-action" style="padding: 8px 18px; font-size: 13px;">Gửi Điểm</button>
+        </div>
+        <div id="save-score-msg" style="font-size: 11px; margin-top: 6px; color: #94a3b8;">Tên chỉ gồm chữ cái, số và gạch dưới [A-Za-z0-9_]</div>
+      </div>
+
+      <div style="display:flex; gap:12px; justify-content:center;">
+        <button class="btn-action" id="btn-view-board" style="background:linear-gradient(135deg, #0284c7, #0369a1); box-shadow:0 4px 15px rgba(2,132,199,0.5);">Xem BXH</button>
+        <button class="btn-action" id="btn-restart">Chơi Lại</button>
+      </div>
     </div>
   </div>
 
@@ -1669,52 +1779,25 @@
     };
 
     function mapKeyCode(code, key, isDown) {
-      // 1. Kiểm tra qua e.code trước (độc lập bộ gõ Unikey/EVKey)
-      switch (code) {
-        case 'KeyW': keys.w = isDown; return true;
-        case 'KeyA': keys.a = isDown; return true;
-        case 'KeyS': keys.s = isDown; return true;
-        case 'KeyD': keys.d = isDown; return true;
-        case 'KeyE': keys.e = isDown; return true;
-        case 'KeyF': keys.f = isDown; return true;
-        case 'KeyP': keys.p = isDown; return true;
-        case 'KeyR':
-          if (isDown) location.reload();
-          return true;
-        case 'Digit1': case 'Numpad1':
-          if (isDown) window.location.href = '/?night=1';
-          return true;
-        case 'Digit2': case 'Numpad2':
-          if (isDown) window.location.href = '/?night=2';
-          return true;
-        case 'Digit3': case 'Numpad3':
-          if (isDown) window.location.href = '/?night=3';
-          return true;
-        case 'Space': keys.space = isDown; return true;
-        case 'ShiftLeft': case 'ShiftRight': keys.shift = isDown; return true;
-        case 'ArrowUp': keys.arrowup = isDown; return true;
-        case 'ArrowLeft': keys.arrowleft = isDown; return true;
-        case 'ArrowDown': keys.arrowdown = isDown; return true;
-        case 'ArrowRight': keys.arrowright = isDown; return true;
-        case 'Escape': keys.escape = isDown; return true;
-      }
-
-      // 2. Fallback qua e.key
       const k = (key || '').toLowerCase();
-      if (k === 'w') { keys.w = isDown; return true; }
-      if (k === 'a') { keys.a = isDown; return true; }
-      if (k === 's') { keys.s = isDown; return true; }
-      if (k === 'd') { keys.d = isDown; return true; }
-      if (k === 'e') { keys.e = isDown; return true; }
-      if (k === 'f') { keys.f = isDown; return true; }
-      if (k === 'p') { keys.p = isDown; return true; }
-      if (k === ' ') { keys.space = isDown; return true; }
-      if (k === 'shift') { keys.shift = isDown; return true; }
-      if (k === 'escape') { keys.escape = isDown; return true; }
-      if (k === 'r' && isDown) { location.reload(); return true; }
-      if (k === '1' && isDown) { window.location.href = '/?night=1'; return true; }
-      if (k === '2' && isDown) { window.location.href = '/?night=2'; return true; }
-      if (k === '3' && isDown) { window.location.href = '/?night=3'; return true; }
+
+      // Kiểm tra phím tùy chỉnh từ keyBindings
+      if (code === keyBindings.up || k === keyBindings.up.toLowerCase() || code === 'ArrowUp') { keys.w = isDown; return true; }
+      if (code === keyBindings.down || k === keyBindings.down.toLowerCase() || code === 'ArrowDown') { keys.s = isDown; return true; }
+      if (code === keyBindings.left || k === keyBindings.left.toLowerCase() || code === 'ArrowLeft') { keys.a = isDown; return true; }
+      if (code === keyBindings.right || k === keyBindings.right.toLowerCase() || code === 'ArrowRight') { keys.d = isDown; return true; }
+      if (code === keyBindings.jump || code === 'Space' || k === ' ') { keys.space = isDown; return true; }
+      if (code === keyBindings.dash || code === 'ShiftLeft' || code === 'ShiftRight' || k === 'shift') { keys.shift = isDown; return true; }
+      if (code === keyBindings.interact || k === keyBindings.interact.toLowerCase()) { keys.e = isDown; return true; }
+      if (code === keyBindings.pulse || k === keyBindings.pulse.toLowerCase()) { keys.f = isDown; return true; }
+      if (code === keyBindings.pause || code === 'Escape' || k === 'p' || k === 'escape') { keys.p = isDown; return true; }
+
+      // Các phím chức năng cố định
+      if (code === 'KeyR' || k === 'r') { if (isDown) location.reload(); return true; }
+      if ((code === 'Digit1' || k === '1') && isDown) { window.location.href = '/?night=1'; return true; }
+      if ((code === 'Digit2' || k === '2') && isDown) { window.location.href = '/?night=2'; return true; }
+      if ((code === 'Digit3' || k === '3') && isDown) { window.location.href = '/?night=3'; return true; }
+
       return false;
     }
 
@@ -1731,12 +1814,37 @@
       mapKeyCode(e.code, e.key, false);
     });
 
-    // --- SETTINGS & COLORBLIND MODE (Phase 3) ---
+    // --- ACCESSIBILITY & KEY REBINDING & SETTINGS (Phase 4 - Contract v1.3) ---
+    const DEFAULT_KEY_BINDINGS = {
+      up: 'KeyW',
+      down: 'KeyS',
+      left: 'KeyA',
+      right: 'KeyD',
+      jump: 'Space',
+      dash: 'ShiftLeft',
+      interact: 'KeyE',
+      pulse: 'KeyF',
+      pause: 'KeyP'
+    };
+
+    let keyBindings = { ...DEFAULT_KEY_BINDINGS };
+    try {
+      const savedBindings = localStorage.getItem('key_bindings');
+      if (savedBindings) {
+        keyBindings = { ...DEFAULT_KEY_BINDINGS, ...JSON.parse(savedBindings) };
+      }
+    } catch (e) {}
+
     let colorblindMode = localStorage.getItem('colorblind_mode') === 'true';
+    let reduceMotion = localStorage.getItem('reduce_motion') === 'true';
+    let largeText = localStorage.getItem('large_text') === 'true';
     let masterVolume = parseFloat(localStorage.getItem('master_vol') || '0.8');
     let mouseSens = parseFloat(localStorage.getItem('mouse_sens') || '1.0');
 
+    // UI elements
     const cbColorblind = document.getElementById('cb-colorblind');
+    const cbReduceMotion = document.getElementById('cb-reducemotion');
+    const cbLargeText = document.getElementById('cb-largetext');
     const sliderVolume = document.getElementById('slider-volume');
     const sliderSens = document.getElementById('slider-sensitivity');
     const valVolume = document.getElementById('val-volume');
@@ -1744,27 +1852,175 @@
     const settingsModal = document.getElementById('settings-modal');
     const btnSettings = document.getElementById('btn-settings');
     const btnCloseSettings = document.getElementById('btn-close-settings');
+    const btnResetKeys = document.getElementById('btn-reset-keys');
+    const keyConflictWarning = document.getElementById('key-conflict-warning');
+    const visualIndicator = document.getElementById('visual-indicator');
     const interactPrompt = document.getElementById('interact-prompt');
 
+    // Leaderboard elements
+    const leaderboardModal = document.getElementById('leaderboard-modal');
+    const btnLeaderboard = document.getElementById('btn-leaderboard');
+    const btnCloseLeaderboard = document.getElementById('btn-close-leaderboard');
+    const btnCloseLeaderboardBottom = document.getElementById('btn-close-leaderboard-bottom');
+    const leaderboardTbody = document.getElementById('leaderboard-tbody');
+    const inputPlayerName = document.getElementById('input-player-name');
+    const btnSaveScore = document.getElementById('btn-save-score');
+    const saveScoreMsg = document.getElementById('save-score-msg');
+    const btnViewBoard = document.getElementById('btn-view-board');
+
+    // Init UI inputs
     cbColorblind.checked = colorblindMode;
+    cbReduceMotion.checked = reduceMotion;
+    cbLargeText.checked = largeText;
+    if (largeText) document.body.style.fontSize = '125%';
+
     sliderVolume.value = Math.round(masterVolume * 100);
     valVolume.innerText = `${Math.round(masterVolume * 100)}%`;
     sliderSens.value = Math.round(mouseSens * 10);
     valSens.innerText = `${mouseSens.toFixed(1)}x`;
 
-    btnSettings.onclick = () => { settingsModal.style.display = 'flex'; };
+    // Populate Key inputs
+    function populateKeyInputs() {
+      const mapNames = { up: 'bind-up', down: 'bind-down', left: 'bind-left', right: 'bind-right', jump: 'bind-jump', dash: 'bind-dash', interact: 'bind-interact', pulse: 'bind-pulse' };
+      for (const [action, inputId] of Object.entries(mapNames)) {
+        const inp = document.getElementById(inputId);
+        if (inp) {
+          inp.value = keyBindings[action].replace('Key', '').replace('Left', '').replace('Right', '');
+          inp.onkeydown = (e) => {
+            e.preventDefault();
+            keyBindings[action] = e.code || e.key;
+            inp.value = (e.code || e.key).replace('Key', '').replace('Left', '').replace('Right', '');
+            checkKeyConflicts();
+          };
+        }
+      }
+    }
+    populateKeyInputs();
+
+    function checkKeyConflicts() {
+      const values = Object.values(keyBindings);
+      const unique = new Set(values);
+      const hasConflict = unique.size < values.length;
+      keyConflictWarning.style.display = hasConflict ? 'block' : 'none';
+      return hasConflict;
+    }
+
+    btnResetKeys.onclick = () => {
+      keyBindings = { ...DEFAULT_KEY_BINDINGS };
+      populateKeyInputs();
+      checkKeyConflicts();
+    };
+
+    btnSettings.onclick = () => {
+      populateKeyInputs();
+      settingsModal.style.display = 'flex';
+    };
+
     btnCloseSettings.onclick = () => {
+      if (checkKeyConflicts()) {
+        alert('Phát hiện phím bị trùng lặp! Vui lòng sửa lại trước khi lưu.');
+        return;
+      }
       colorblindMode = cbColorblind.checked;
+      reduceMotion = cbReduceMotion.checked;
+      largeText = cbLargeText.checked;
+      document.body.style.fontSize = largeText ? '125%' : '100%';
+
       masterVolume = sliderVolume.value / 100.0;
       mouseSens = sliderSens.value / 10.0;
+
       localStorage.setItem('colorblind_mode', colorblindMode);
+      localStorage.setItem('reduce_motion', reduceMotion);
+      localStorage.setItem('large_text', largeText);
       localStorage.setItem('master_vol', masterVolume);
       localStorage.setItem('mouse_sens', mouseSens);
+      localStorage.setItem('key_bindings', JSON.stringify(keyBindings));
+
       settingsModal.style.display = 'none';
     };
 
     sliderVolume.oninput = () => { valVolume.innerText = `${sliderVolume.value}%`; };
     sliderSens.oninput = () => { valSens.innerText = `${(sliderSens.value / 10).toFixed(1)}x`; };
+
+    // --- LEADERBOARD LOGIC ---
+    async function loadLeaderboardUI() {
+      try {
+        const res = await fetch('/api/leaderboard');
+        const list = await res.json();
+        leaderboardTbody.innerHTML = '';
+        list.forEach((entry, idx) => {
+          const tr = document.createElement('tr');
+          tr.style.borderBottom = '1px solid rgba(255,255,255,0.08)';
+          const medal = idx === 0 ? '🥇 ' : (idx === 1 ? '🥈 ' : (idx === 2 ? '🥉 ' : ''));
+          const dt = new Date(entry.achieved_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+          tr.innerHTML = `
+            <td style="padding:8px 6px; font-weight:bold;">${medal}${idx + 1}</td>
+            <td style="padding:8px 6px; font-weight:bold; color:#fff;">${entry.name}</td>
+            <td style="padding:8px 6px; text-align:right; font-weight:800; color:#f59e0b;">${entry.score} pts</td>
+            <td style="padding:8px 6px; text-align:center;">${entry.nights_won}/3</td>
+            <td style="padding:8px 6px; text-align:right; font-size:11px; color:#94a3b8;">${dt}</td>
+          `;
+          leaderboardTbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Không thể nạp leaderboard:', err);
+      }
+    }
+
+    btnLeaderboard.onclick = () => {
+      loadLeaderboardUI();
+      leaderboardModal.style.display = 'flex';
+    };
+    if (btnViewBoard) {
+      btnViewBoard.onclick = () => {
+        loadLeaderboardUI();
+        leaderboardModal.style.display = 'flex';
+      };
+    }
+    btnCloseLeaderboard.onclick = btnCloseLeaderboardBottom.onclick = () => {
+      leaderboardModal.style.display = 'none';
+    };
+
+    btnSaveScore.onclick = async () => {
+      const name = (inputPlayerName.value || '').trim();
+      if (!/^[A-Za-z0-9_]{3,12}$/.test(name)) {
+        saveScoreMsg.style.color = '#ef4444';
+        saveScoreMsg.innerText = 'Tên không hợp lệ! Vui lòng nhập 3-12 ký tự [A-Za-z0-9_].';
+        return;
+      }
+      saveScoreMsg.style.color = '#38bdf8';
+      saveScoreMsg.innerText = 'Đang gửi điểm...';
+
+      try {
+        const payload = {
+          name,
+          score: sim.score,
+          nights_won: sim.state === 'won' ? sim.night : Math.max(0, sim.night - 1),
+          seed: sim.seed
+        };
+        const res = await fetch('/api/leaderboard', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          saveScoreMsg.style.color = '#22c55e';
+          saveScoreMsg.innerText = 'Đã lưu điểm thành công!';
+          btnSaveScore.disabled = true;
+          setTimeout(() => {
+            loadLeaderboardUI();
+            leaderboardModal.style.display = 'flex';
+          }, 600);
+        } else {
+          saveScoreMsg.style.color = '#ef4444';
+          saveScoreMsg.innerText = data.reason || 'Lỗi khi lưu điểm.';
+        }
+      } catch (err) {
+        saveScoreMsg.style.color = '#ef4444';
+        saveScoreMsg.innerText = 'Lỗi kết nối tới máy chủ.';
+      }
+    };
 
     // Click On-Screen Buttons
     const btnJump = document.getElementById('btn-jump');
@@ -1877,6 +2133,45 @@
 
       // Pause Banner
       document.getElementById('pause-banner').style.display = (sim.state === 'paused') ? 'block' : 'none';
+
+      // Visual Indicators & Subtitles (Accessibility Phase 4)
+      let warningText = '';
+      let warningColor = '#ef4444';
+
+      if (sim.time_left_s <= 10.0 && sim.time_left_s > 0.0) {
+        warningText = `⏰ ⚠ CHỈ CÒN ${Math.ceil(sim.time_left_s)} GIÂY CUỐI CÙNG!`;
+        warningColor = '#ef4444';
+      } else if (sim.wind_enabled && (sim.wind.nextWindTick - sim.sim_tick <= 180) && !sim.wind.active) {
+        const sec = Math.max(1, Math.ceil((sim.wind.nextWindTick - sim.sim_tick) / 60));
+        warningText = `💨 ⚠ CẢNH BÁO: GIÓ MẠNH SẮP QUÉT QUA TRONG ${sec}s!`;
+        warningColor = '#38bdf8';
+      } else {
+        const weakLantern = sim.lanterns.find(l => l.lit && (l.fuelTicks / 60.0) < 30.0);
+        if (weakLantern) {
+          warningText = `🏮 ⚠ NGUY CẤP: ĐÈN ${weakLantern.id} SẮP CẠN DẦU (<30%)!`;
+          warningColor = '#f59e0b';
+        } else {
+          const nearShade = sim.shades.find(s => {
+            const d = Math.hypot(s.pos[0] - sim.player.pos[0], s.pos[2] - sim.player.pos[2]);
+            return d <= 10.0;
+          });
+          if (nearShade) {
+            const dx = nearShade.pos[0] - sim.player.pos[0];
+            const arrow = (dx > 0) ? '➡' : '⬅';
+            warningText = `👾 ⚠ CẢNH BÁO: BÓNG MỰC TIẾP CẬN ${arrow}`;
+            warningColor = colorblindMode ? '#00b3ff' : '#a855f7';
+          }
+        }
+      }
+
+      if (warningText) {
+        visualIndicator.innerText = warningText;
+        visualIndicator.style.borderColor = warningColor;
+        visualIndicator.style.color = colorblindMode ? '#ffffff' : warningColor;
+        visualIndicator.style.display = 'block';
+      } else {
+        visualIndicator.style.display = 'none';
+      }
     }
 
     // --- GAME LOOP ---

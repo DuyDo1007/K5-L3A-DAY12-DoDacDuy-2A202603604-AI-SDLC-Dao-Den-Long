@@ -1,0 +1,20 @@
+=== RUNNING UNIT & INTEGRATION TESTS (PHASE 3 - CONTRACT v1.2) ===
+  PASS: SeededRNG sinh dãy số giống nhau với cùng seed
+  PASS: Lướt (Dash) đạt tốc độ 14 m/s và sinh sự kiện dash
+  PASS: Nhảy đạt vận tốc ban đầu và trọng lực kéo xuống đất
+  PASS: Nhặt đom đóm với sức chứa 10 và bán kính XZ <= 1.0m, |dY| <= 1.5m
+  PASS: Thắp đèn lồng cần 10 đom đóm và tạo vùng an toàn 6m
+  PASS: Gió Lạc cướp tối đa 3 đom đóm và Pulse buộc Gió Lạc thả lại
+  PASS: Bùa Gió tăng tốc lên 7.2 m/s và xóa hồi chiêu Lướt
+  PASS: Tạm dừng logic khi bấm Pause và tiếp tục khi unpause
+  PASS: Rơi khỏi đảo gây mất 1 ngọn lửa, mất toàn bộ đom đóm và chờ hồi sinh
+  PASS: Tính tất định 100% Contract v1.2: 2 lần chạy cho cùng SHA-256 byte-for-byte
+  PASS: Phase 3: Đèn tự hao hụt 1.0 fuel/s (1/60 mỗi tick), hết dầu thì tắt và nhớ ever_lit
+  PASS: Phase 3: Châm dầu đèn đang sáng tính theo used = min(carried, ceil((100-fuel)/10))
+  PASS: Phase 3: Đèn đã từng sáng (ever_lit: true) chỉ cần 5 đom đóm để thắp lại và thưởng +40 điểm
+  PASS: Phase 3: Bóng Mực tiếp cận đèn fuel < 30, drain 5 fuel/s và phát fuel_drain mỗi 60 tick
+  PASS: Phase 3: Tỏa Sáng (Pulse) trúng Bóng Mực đang drain thưởng +15 điểm
+  PASS: Phase 3: Sức chứa tăng dần theo số lần thắp đèn thành công, tối đa 20
+  PASS: Phase 3: Thắng bình minh (dawn_survived) khi hết giờ và đủ >= 60% đèn sáng
+
+Kết quả: 17 passed, 0 failed.
