@@ -551,6 +551,26 @@
     const starField = new THREE.Points(starGeo, starMat);
     scene.add(starField);
 
+    // Hạt đom đóm thần tiên bay lơ lửng khắp hòn đảo (Floating Fireflies / Golden Embers)
+    const fireflyCount = 140;
+    const fireflyGeo = new THREE.BufferGeometry();
+    const fireflyPos = new Float32Array(fireflyCount * 3);
+    for (let i = 0; i < fireflyCount * 3; i += 3) {
+      fireflyPos[i] = (Math.random() - 0.5) * 75;
+      fireflyPos[i + 1] = 0.5 + Math.random() * 5.0;
+      fireflyPos[i + 2] = (Math.random() - 0.5) * 75;
+    }
+    fireflyGeo.setAttribute('position', new THREE.BufferAttribute(fireflyPos, 3));
+    const fireflyMat = new THREE.PointsMaterial({
+      color: 0xfef08a,
+      size: 0.65,
+      transparent: true,
+      opacity: 0.85,
+      blending: THREE.AdditiveBlending
+    });
+    const fireflyParticles = new THREE.Points(fireflyGeo, fireflyMat);
+    scene.add(fireflyParticles);
+
     // --- BIỂN MÂY BỒNG BỀNH CUỘN SÓNG (SEA OF CLOUDS) ---
     const cloudGeo = new THREE.PlaneGeometry(380, 380, 32, 32);
     const cloudMat = new THREE.MeshStandardMaterial({
@@ -877,7 +897,36 @@
         decorGroup.add(lf);
       });
 
-      // Phiến đá tự nhiên
+      // Hồ Sen Thần Tiên (Crystal Lotus Pond)
+      const pondGeo = new THREE.CylinderGeometry(6.5, 6.0, 0.2, 24);
+      const pondMat = new THREE.MeshStandardMaterial({
+        color: 0x0369a1, // Nước xanh biếc phản chiếu ánh trăng
+        roughness: 0.1,
+        metalness: 0.4,
+        transparent: true,
+        opacity: 0.85,
+        flatShading: true
+      });
+      const pond = new THREE.Mesh(pondGeo, pondMat);
+      pond.position.set(-14, 0.03, 14);
+      decorGroup.add(pond);
+
+      // Viền đá quanh hồ sen
+      for (let p = 0; p < 12; p++) {
+        const pAng = (p / 12) * Math.PI * 2;
+        const pRock = createNaturalRock(0.7, 0.4, 0.8);
+        pRock.position.set(-14 + Math.cos(pAng) * 6.6, 0.1, 14 + Math.sin(pAng) * 6.6);
+        decorGroup.add(pRock);
+      }
+
+      // Các đóa sen và lá sen bồng bềnh trên mặt hồ
+      [[-13, 13], [-15, 15], [-12, 15], [-15, 13]].forEach(([px, pz]) => {
+        const pf = createLotusFlower(1.2);
+        pf.position.set(px, 0.14, pz);
+        decorGroup.add(pf);
+      });
+
+      // Phiến đá tự nhiên quanh đảo
       for (let r = 0; r < 14; r++) {
         const ang = (r / 14) * Math.PI * 2 + 0.3;
         const rad = 28 + (r % 3) * 3;
@@ -1008,129 +1057,317 @@
     // --- CORE SIMULATION INSTANCE ---
     const sim = new WorldSimulation({ night: activeNight }, 42);
 
-    // --- NHÂN VẬT MÂY (CHIBI CỔ PHỤC VIỆT NAM TINH XẢO) ---
+    // --- NHÂN VẬT NARUTO CHIBI (THIẾT KẾ 3D CHI TIẾT TỪNG NÉT) ---
     const mayGroup = new THREE.Group();
 
-    // 1. Thân áo bà ba xanh chàm duyên dáng
-    const robeGeo = new THREE.CylinderGeometry(0.32, 0.48, 1.05, 12);
-    const robeMat = new THREE.MeshStandardMaterial({
-      color: 0x24517b,
+    // 1. Thân áo khoác Ninja màu cam dáng lửng Chibi chuẩn xác
+    const jacketGeo = new THREE.CylinderGeometry(0.32, 0.35, 0.46, 16);
+    const jacketMat = new THREE.MeshStandardMaterial({
+      color: 0xe85d04, // Cam Naruto rực rỡ
       roughness: 0.65,
       flatShading: true
     });
-    const robe = new THREE.Mesh(robeGeo, robeMat);
-    robe.position.y = 0.58;
-    robe.castShadow = true;
-    mayGroup.add(robe);
+    const jacket = new THREE.Mesh(jacketGeo, jacketMat);
+    jacket.position.y = 0.74;
+    jacket.castShadow = true;
+    mayGroup.add(jacket);
 
-    // Dải thắt lưng lụa thêu hoa văn vàng óng rực rỡ
-    const beltGeo = new THREE.CylinderGeometry(0.42, 0.46, 0.2, 16);
-    const beltMat = new THREE.MeshStandardMaterial({
-      color: 0xfbbf24,
-      emissive: 0xf59e0b,
-      emissiveIntensity: 1.1,
-      roughness: 0.35
-    });
-    const belt = new THREE.Mesh(beltGeo, beltMat);
-    belt.position.y = 0.62;
-    mayGroup.add(belt);
+    // Bo gấu áo khoác màu cam đậm
+    const hemGeo = new THREE.TorusGeometry(0.35, 0.035, 8, 16);
+    const hem = new THREE.Mesh(hemGeo, jacketMat);
+    hem.rotation.x = Math.PI / 2;
+    hem.position.y = 0.51;
+    mayGroup.add(hem);
 
-    // Hai dải lụa thắt lưng buông rủ phía trước duyên dáng
-    const ribbonGeo = new THREE.BoxGeometry(0.12, 0.42, 0.04);
-    const ribbonL = new THREE.Mesh(ribbonGeo, beltMat);
-    ribbonL.position.set(-0.08, 0.4, 0.44);
-    ribbonL.rotation.z = -0.15;
-    mayGroup.add(ribbonL);
-
-    const ribbonR = new THREE.Mesh(ribbonGeo, beltMat);
-    ribbonR.position.set(0.08, 0.4, 0.44);
-    ribbonR.rotation.z = 0.15;
-    mayGroup.add(ribbonR);
-
-    // 2. Đầu & Mặt chibi dễ thương
-    const headGeo = new THREE.SphereGeometry(0.26, 16, 16);
-    const headMat = new THREE.MeshStandardMaterial({ color: 0xfedbb6, roughness: 0.55 });
-    const head = new THREE.Mesh(headGeo, headMat);
-    head.position.y = 1.25;
-    head.castShadow = true;
-    mayGroup.add(head);
-
-    // Mắt chibi đen láy
-    const eyeGeo = new THREE.SphereGeometry(0.04, 8, 8);
-    const eyeMat = new THREE.MeshBasicMaterial({ color: 0x111827 });
-    const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
-    eyeL.position.set(-0.09, 1.27, 0.22);
-    const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
-    eyeR.position.set(0.09, 1.27, 0.22);
-    mayGroup.add(eyeL);
-    mayGroup.add(eyeR);
-
-    // Má hồng nhẹ
-    const blushGeo = new THREE.CircleGeometry(0.035, 8);
-    const blushMat = new THREE.MeshBasicMaterial({ color: 0xf472b6 });
-    const blushL = new THREE.Mesh(blushGeo, blushMat);
-    blushL.position.set(-0.13, 1.22, 0.21);
-    const blushR = new THREE.Mesh(blushGeo, blushMat);
-    blushR.position.set(0.13, 1.22, 0.21);
-    mayGroup.add(blushL);
-    mayGroup.add(blushR);
-
-    // 3. Nón Lá Truyền Thống với Nan Tre & Quai Nón Đỏ
-    const hatGroup = new THREE.Group();
-    const coneGeo = new THREE.ConeGeometry(0.92, 0.44, 28);
-    const coneMat = new THREE.MeshStandardMaterial({
-      color: 0xe6b566, // Vàng lá buông óng ả
-      roughness: 0.75,
-      emissive: 0x5a3e14,
-      emissiveIntensity: 0.15,
+    // Mảng vai và ngực trên màu xám đen
+    const chestPatchGeo = new THREE.CylinderGeometry(0.325, 0.34, 0.26, 16, 1, false, -Math.PI / 3, (Math.PI * 2) / 3);
+    const darkMat = new THREE.MeshStandardMaterial({
+      color: 0x1f2937, // Xám đen Ninja
+      roughness: 0.7,
       flatShading: true
     });
-    const coneMesh = new THREE.Mesh(coneGeo, coneMat);
-    coneMesh.position.y = 1.55;
-    coneMesh.castShadow = true;
-    hatGroup.add(coneMesh);
+    const chestPatch = new THREE.Mesh(chestPatchGeo, darkMat);
+    chestPatch.position.y = 0.85;
+    mayGroup.add(chestPatch);
 
-    // Viền nan tre nẹp nón lá vàng óng
-    const rimGeo = new THREE.TorusGeometry(0.91, 0.035, 8, 28);
-    const rimMat = new THREE.MeshStandardMaterial({ color: 0xfef08a, roughness: 0.5 });
-    const hatRim = new THREE.Mesh(rimGeo, rimMat);
-    hatRim.rotation.x = Math.PI / 2;
-    hatRim.position.y = 1.34;
-    hatGroup.add(hatRim);
-
-    // Dải quai nón lụa đỏ son truyền thống rực rỡ
-    const strapMat = new THREE.MeshStandardMaterial({
-      color: 0xef4444,
-      emissive: 0x991b1b,
-      emissiveIntensity: 0.8,
-      roughness: 0.5
+    // Khóa kéo kim loại bạc ở giữa áo
+    const zipperGeo = new THREE.BoxGeometry(0.03, 0.46, 0.04);
+    const silverMat = new THREE.MeshStandardMaterial({
+      color: 0xd1d5db,
+      metalness: 0.8,
+      roughness: 0.25
     });
-    const strapLGeo = new THREE.CylinderGeometry(0.025, 0.025, 0.45, 8);
-    const strapL = new THREE.Mesh(strapLGeo, strapMat);
-    strapL.position.set(-0.24, 1.25, 0.05);
-    strapL.rotation.z = -0.25;
-    hatGroup.add(strapL);
+    const zipper = new THREE.Mesh(zipperGeo, silverMat);
+    zipper.position.set(0, 0.74, 0.34);
+    mayGroup.add(zipper);
 
-    const strapRGeo = new THREE.CylinderGeometry(0.025, 0.025, 0.45, 8);
-    const strapR = new THREE.Mesh(strapRGeo, strapMat);
-    strapR.position.set(0.24, 1.25, 0.05);
-    strapR.rotation.z = 0.25;
-    hatGroup.add(strapR);
+    // Đệm vai (Shoulder Pads)
+    [-0.32, 0.32].forEach(sx => {
+      const padGeo = new THREE.BoxGeometry(0.12, 0.08, 0.22);
+      const pad = new THREE.Mesh(padGeo, darkMat);
+      pad.position.set(sx, 0.94, 0);
+      pad.rotation.z = (sx > 0) ? -0.2 : 0.2;
+      mayGroup.add(pad);
+    });
 
-    const bowGeo = new THREE.SphereGeometry(0.05, 8, 8);
-    const bow = new THREE.Mesh(bowGeo, strapMat);
-    bow.position.set(0, 1.05, 0.1);
-    hatGroup.add(bow);
+    // Cánh tay áo cam & cổ tay áo đen
+    const armGeo = new THREE.CylinderGeometry(0.09, 0.08, 0.36, 8);
+    const handGeo = new THREE.SphereGeometry(0.07, 8, 8);
+    const skinMat = new THREE.MeshStandardMaterial({ color: 0xfedbb6, roughness: 0.6 });
 
-    mayGroup.add(hatGroup);
+    [-0.38, 0.38].forEach(sx => {
+      const armGroup = new THREE.Group();
+      armGroup.position.set(sx, 0.78, 0);
 
-    // 4. Chiếc Đèn Lồng Quả Trám Phố Cổ Hội An Cầm Tay
+      const arm = new THREE.Mesh(armGeo, jacketMat);
+      arm.position.y = -0.12;
+      armGroup.add(arm);
+
+      // Bo tay áo đen
+      const cuffGeo = new THREE.CylinderGeometry(0.095, 0.095, 0.08, 8);
+      const cuff = new THREE.Mesh(cuffGeo, darkMat);
+      cuff.position.y = -0.28;
+      armGroup.add(cuff);
+
+      // Bàn tay Chibi
+      const hand = new THREE.Mesh(handGeo, skinMat);
+      hand.position.y = -0.36;
+      armGroup.add(hand);
+
+      mayGroup.add(armGroup);
+    });
+
+    // Cổ áo lông cừu trắng xù dày dặn (Fluffy White Fleece Collar)
+    const collarGeo = new THREE.TorusGeometry(0.24, 0.09, 12, 20);
+    const collarMat = new THREE.MeshStandardMaterial({
+      color: 0xf8fafc,
+      roughness: 0.95,
+      flatShading: true
+    });
+    const collar = new THREE.Mesh(collarGeo, collarMat);
+    collar.rotation.x = Math.PI / 2;
+    collar.position.y = 1.05;
+    collar.scale.set(1.15, 0.95, 1.0);
+    mayGroup.add(collar);
+
+    // Hông / Đũng quần ngắn gọn
+    const pelvisGeo = new THREE.CylinderGeometry(0.26, 0.28, 0.12, 12);
+    const pelvis = new THREE.Mesh(pelvisGeo, jacketMat);
+    pelvis.position.y = 0.46;
+    mayGroup.add(pelvis);
+
+    // Hai chân tách biệt rõ ràng (Distinct Cropped Legs)
+    [-0.15, 0.15].forEach((lx) => {
+      const isRightLeg = (lx > 0);
+
+      // 1. Quần lửng cam
+      const legGeo = new THREE.CylinderGeometry(0.12, 0.13, 0.22, 10);
+      const leg = new THREE.Mesh(legGeo, jacketMat);
+      leg.position.set(lx, 0.33, 0);
+      mayGroup.add(leg);
+
+      // 2. Gấu quần xắn gập dày
+      const cuffLegGeo = new THREE.TorusGeometry(0.135, 0.035, 8, 12);
+      const cuffLeg = new THREE.Mesh(cuffLegGeo, jacketMat);
+      cuffLeg.rotation.x = Math.PI / 2;
+      cuffLeg.position.set(lx, 0.21, 0);
+      mayGroup.add(cuffLeg);
+
+      // 3. Bắp chân lộ da thịt
+      const skinLegGeo = new THREE.CylinderGeometry(0.075, 0.075, 0.15, 8);
+      const skinLeg = new THREE.Mesh(skinLegGeo, skinMat);
+      skinLeg.position.set(lx, 0.13, 0);
+      mayGroup.add(skinLeg);
+
+      // 4. Sandal Ninja đen hở ngón chân
+      const sandalCuffGeo = new THREE.CylinderGeometry(0.088, 0.088, 0.09, 8);
+      const sandalCuff = new THREE.Mesh(sandalCuffGeo, darkMat);
+      sandalCuff.position.set(lx, 0.06, 0);
+      mayGroup.add(sandalCuff);
+
+      const sandalSoleGeo = new THREE.BoxGeometry(0.14, 0.06, 0.24);
+      const sandalSole = new THREE.Mesh(sandalSoleGeo, darkMat);
+      sandalSole.position.set(lx, 0.02, 0.03);
+      mayGroup.add(sandalSole);
+
+      // Các ngón chân màu da lộ ra ngoài phía trước sandal
+      const toesGeo = new THREE.BoxGeometry(0.11, 0.04, 0.06);
+      const toes = new THREE.Mesh(toesGeo, skinMat);
+      toes.position.set(lx, 0.02, 0.15);
+      mayGroup.add(toes);
+
+      // 5. Băng gạc quấn đùi phải & Túi bao dao Kunai
+      if (isRightLeg) {
+        const bandageGeo = new THREE.CylinderGeometry(0.135, 0.135, 0.14, 12);
+        const bandageMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 });
+        const bandage = new THREE.Mesh(bandageGeo, bandageMat);
+        bandage.position.set(lx, 0.33, 0);
+        mayGroup.add(bandage);
+
+        // Túi bao dao Kunai đen nhô hẳn ra ngoài bên đùi phải
+        const pouchGeo = new THREE.BoxGeometry(0.09, 0.15, 0.08);
+        const pouch = new THREE.Mesh(pouchGeo, darkMat);
+        pouch.position.set(lx + 0.13, 0.33, 0);
+        mayGroup.add(pouch);
+      }
+    });
+
+    // 2. Đầu & Mặt Naruto Chibi
+    const headGroup = new THREE.Group();
+    headGroup.position.y = 1.35;
+
+    const headGeo = new THREE.SphereGeometry(0.32, 20, 20);
+    const head = new THREE.Mesh(headGeo, skinMat);
+    head.scale.set(1.05, 0.98, 1.0);
+    head.castShadow = true;
+    headGroup.add(head);
+
+    // Đôi tai Chibi hai bên
+    [-0.34, 0.34].forEach(ex => {
+      const earGeo = new THREE.SphereGeometry(0.07, 8, 8);
+      const ear = new THREE.Mesh(earGeo, skinMat);
+      ear.position.set(ex, -0.02, 0);
+      ear.scale.set(0.6, 1.0, 0.8);
+      headGroup.add(ear);
+    });
+
+    // Mắt to tròn xanh dương sâu thẳm của Naruto
+    const eyeWhiteGeo = new THREE.SphereGeometry(0.075, 12, 12);
+    const eyeWhiteMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const eyeIrisGeo = new THREE.SphereGeometry(0.05, 10, 10);
+    const eyeIrisMat = new THREE.MeshBasicMaterial({ color: 0x0284c7 }); // Xanh dương Naruto
+    const eyePupilGeo = new THREE.SphereGeometry(0.028, 8, 8);
+    const eyePupilMat = new THREE.MeshBasicMaterial({ color: 0x0f172a });
+    const eyeGlintGeo = new THREE.SphereGeometry(0.018, 6, 6);
+    const eyeGlintMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+    [-0.12, 0.12].forEach(ex => {
+      // Tròng trắng
+      const ew = new THREE.Mesh(eyeWhiteGeo, eyeWhiteMat);
+      ew.position.set(ex, 0.02, 0.28);
+      ew.scale.set(1.0, 1.25, 0.4);
+      headGroup.add(ew);
+
+      // Tròng xanh
+      const ei = new THREE.Mesh(eyeIrisGeo, eyeIrisMat);
+      ei.position.set(ex, 0.02, 0.31);
+      ei.scale.set(1.0, 1.15, 0.4);
+      headGroup.add(ei);
+
+      // Con ngươi đen
+      const ep = new THREE.Mesh(eyePupilGeo, eyePupilMat);
+      ep.position.set(ex, 0.02, 0.325);
+      headGroup.add(ep);
+
+      // Đốm sáng phản chiếu long lanh
+      const eg = new THREE.Mesh(eyeGlintGeo, eyeGlintMat);
+      eg.position.set(ex - 0.015, 0.035, 0.33);
+      headGroup.add(eg);
+    });
+
+    // 3 Vệt râu mèo (Whiskers) đặc trưng ở hai bên má Naruto
+    const whiskerMat = new THREE.MeshBasicMaterial({ color: 0x9a3412 });
+    [-0.19, 0.19].forEach((wx, sIdx) => {
+      [-0.04, -0.07, -0.10].forEach((wy, wIdx) => {
+        const whiskerGeo = new THREE.BoxGeometry(0.065, 0.012, 0.02);
+        const whisker = new THREE.Mesh(whiskerGeo, whiskerMat);
+        whisker.position.set(wx, wy, 0.26);
+        whisker.rotation.z = (sIdx === 0 ? 1 : -1) * (0.15 - wIdx * 0.1);
+        headGroup.add(whisker);
+      });
+    });
+
+    // Mũi nhỏ xíu
+    const noseGeo = new THREE.ConeGeometry(0.02, 0.04, 4);
+    const nose = new THREE.Mesh(noseGeo, skinMat);
+    nose.position.set(0, -0.01, 0.33);
+    nose.rotation.x = Math.PI / 4;
+    headGroup.add(nose);
+
+    // Miệng mỉm cười tự tin
+    const mouthGeo = new THREE.TorusGeometry(0.04, 0.008, 6, 10, Math.PI);
+    const mouthMat = new THREE.MeshBasicMaterial({ color: 0x9a3412 });
+    const mouth = new THREE.Mesh(mouthGeo, mouthMat);
+    mouth.position.set(0, -0.08, 0.31);
+    mouth.rotation.x = Math.PI * 0.95;
+    headGroup.add(mouth);
+
+    // 3. Băng Trán Làng Lá (Konoha Headband)
+    const bandGeo = new THREE.CylinderGeometry(0.335, 0.335, 0.14, 20);
+    const bandMat = new THREE.MeshStandardMaterial({
+      color: 0x182030, // Xanh đen vải băng trán
+      roughness: 0.7
+    });
+    const band = new THREE.Mesh(bandGeo, bandMat);
+    band.position.set(0, 0.14, 0);
+    headGroup.add(band);
+
+    // Miếng kim loại bảo vệ trán màu bạc
+    const plateGeo = new THREE.BoxGeometry(0.28, 0.12, 0.04);
+    const plate = new THREE.Mesh(plateGeo, silverMat);
+    plate.position.set(0, 0.14, 0.33);
+    headGroup.add(plate);
+
+    // Biểu tượng Làng Lá (Konoha Leaf Symbol)
+    const konohaGeo = new THREE.TorusGeometry(0.032, 0.008, 6, 12);
+    const konohaMat = new THREE.MeshBasicMaterial({ color: 0x0f172a });
+    const konoha = new THREE.Mesh(konohaGeo, konohaMat);
+    konoha.position.set(0, 0.14, 0.355);
+    headGroup.add(konoha);
+
+    // Dải vải buộc băng trán dài rủ ra phía sau bên phải tung bay
+    const ribbonBandGeo = new THREE.BoxGeometry(0.06, 0.45, 0.02);
+    const ribbonBand1 = new THREE.Mesh(ribbonBandGeo, bandMat);
+    ribbonBand1.position.set(0.18, 0.05, -0.32);
+    ribbonBand1.rotation.set(-0.3, 0.4, 0.3);
+    headGroup.add(ribbonBand1);
+
+    const ribbonBand2 = new THREE.Mesh(ribbonBandGeo, bandMat);
+    ribbonBand2.position.set(0.24, -0.05, -0.34);
+    ribbonBand2.rotation.set(-0.4, 0.5, 0.4);
+    headGroup.add(ribbonBand2);
+
+    // 4. Mái Tóc Vàng Nhọn Tỉ Mỉ (Spiky Golden Hair)
+    const hairMat = new THREE.MeshStandardMaterial({
+      color: 0xf5bf24, // Vàng kim óng ả Naruto
+      roughness: 0.35,
+      emissive: 0x854d0e,
+      emissiveIntensity: 0.25,
+      flatShading: true
+    });
+
+    // Đỉnh tóc và các chỏm tóc nhọn xòe ra tứ phía
+    const hairSpikes = [
+      { p: [0, 0.44, 0], s: [0.18, 0.38, 0.18], r: [0, 0, 0] },
+      { p: [0.14, 0.42, 0.08], s: [0.16, 0.36, 0.16], r: [0.2, 0, -0.3] },
+      { p: [-0.14, 0.42, 0.08], s: [0.16, 0.36, 0.16], r: [0.2, 0, 0.3] },
+      { p: [0, 0.42, -0.14], s: [0.16, 0.36, 0.16], r: [-0.3, 0, 0] },
+      { p: [0.22, 0.34, -0.06], s: [0.15, 0.32, 0.15], r: [-0.1, 0, -0.5] },
+      { p: [-0.22, 0.34, -0.06], s: [0.15, 0.32, 0.15], r: [-0.1, 0, 0.5] },
+      { p: [0.12, 0.38, -0.18], s: [0.14, 0.32, 0.14], r: [-0.4, 0, -0.2] },
+      { p: [-0.12, 0.38, -0.18], s: [0.14, 0.32, 0.14], r: [-0.4, 0, 0.2] },
+      { p: [0.26, 0.22, 0.12], s: [0.12, 0.26, 0.12], r: [0.3, 0, -0.6] },
+      { p: [-0.26, 0.22, 0.12], s: [0.12, 0.26, 0.12], r: [0.3, 0, 0.6] },
+      { p: [0, 0.24, -0.28], s: [0.16, 0.28, 0.16], r: [-0.6, 0, 0] }
+    ];
+
+    hairSpikes.forEach(sp => {
+      const spikeGeo = new THREE.ConeGeometry(sp.s[0], sp.s[1], 5);
+      const spike = new THREE.Mesh(spikeGeo, hairMat);
+      spike.position.set(sp.p[0], sp.p[1], sp.p[2]);
+      spike.rotation.set(sp.r[0], sp.r[1], sp.r[2]);
+      headGroup.add(spike);
+    });
+
+    mayGroup.add(headGroup);
+
+    // 5. Chiếc Đèn Lồng Quả Trám Phố Cổ Hội An Naruto Cầm Tay
     const smallLanternGroup = new THREE.Group();
     const slBodyGeo = new THREE.OctahedronGeometry(0.18, 1);
     const slBodyMat = new THREE.MeshStandardMaterial({
       color: 0xffaa33,
       emissive: 0xff8800,
-      emissiveIntensity: 2.8,
+      emissiveIntensity: 3.5, // Sáng rực rỡ hơn
       flatShading: true
     });
     const slBody = new THREE.Mesh(slBodyGeo, slBodyMat);
@@ -1146,16 +1383,17 @@
     smallLanternGroup.add(pole);
 
     const tasselGeo = new THREE.ConeGeometry(0.04, 0.15, 6);
-    const tassel = new THREE.Mesh(tasselGeo, strapMat);
+    const tasselMat = new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0x991b1b, emissiveIntensity: 0.8 });
+    const tassel = new THREE.Mesh(tasselGeo, tasselMat);
     tassel.position.y = -0.28;
     smallLanternGroup.add(tassel);
 
-    smallLanternGroup.position.set(0.42, 0.95, 0.35);
+    smallLanternGroup.position.set(0.44, 0.75, 0.32);
     mayGroup.add(smallLanternGroup);
 
-    // Ánh sáng từ chiếc đèn nhỏ của Mây
-    const mayLight = new THREE.PointLight(0xffaa33, 2.5, 10.0);
-    mayLight.position.set(0.42, 1.0, 0.35);
+    // Ánh sáng từ chiếc đèn nhỏ của Naruto (ấm áp và mạnh mẽ hơn)
+    const mayLight = new THREE.PointLight(0xffaa33, 3.2, 12.0);
+    mayLight.position.set(0.44, 0.8, 0.32);
     mayGroup.add(mayLight);
 
     // Vòng phát sáng bảo vệ khi bất tử
@@ -1231,26 +1469,38 @@
       spire.position.y = 4.15;
       group.add(spire);
 
-      // Vòng bảo vệ an toàn 6m vẽ rõ trên mặt đất
-      const safeCircleGeo = new THREE.RingGeometry(5.92, 6.08, 48);
+      // Vòng bảo vệ an toàn 6m vẽ rõ trên mặt đất (rực rỡ hoa văn)
+      const safeCircleGeo = new THREE.RingGeometry(5.88, 6.12, 48);
       const safeCircleMat = new THREE.MeshBasicMaterial({
         color: 0xf59e0b,
         side: THREE.DoubleSide,
         transparent: true,
-        opacity: 0.25
+        opacity: 0.35
       });
       const safeCircle = new THREE.Mesh(safeCircleGeo, safeCircleMat);
       safeCircle.rotation.x = -Math.PI / 2;
       safeCircle.position.y = 0.05;
       group.add(safeCircle);
 
-      // Nguồn sáng ấm rực rỡ
-      const pLight = new THREE.PointLight(0xff9922, 0.9, 15);
+      // Quả cầu hào quang Bloom rực sáng bên trong lồng đèn
+      const glowOrbGeo = new THREE.SphereGeometry(0.72, 16, 16);
+      const glowOrbMat = new THREE.MeshBasicMaterial({
+        color: 0xffbb33,
+        transparent: true,
+        opacity: 0.0,
+        blending: THREE.AdditiveBlending
+      });
+      const glowOrb = new THREE.Mesh(glowOrbGeo, glowOrbMat);
+      glowOrb.position.y = 2.7;
+      group.add(glowOrb);
+
+      // Nguồn sáng ấm rực rỡ mạnh mẽ
+      const pLight = new THREE.PointLight(0xff9922, 1.8, 18);
       pLight.position.set(0, 2.8, 0);
       group.add(pLight);
 
       scene.add(group);
-      lanternMeshes.push({ id, group, frame, frameMat, safeCircle, safeCircleMat, light: pLight });
+      lanternMeshes.push({ id, group, frame, frameMat, safeCircle, safeCircleMat, glowOrb, glowOrbMat, light: pLight });
       lanternLights.push(pLight);
     }
 
@@ -1592,22 +1842,28 @@
         shieldMesh.visible = false;
       }
 
-      // 2. Cập nhật Đèn Lồng Lớn
+      // 2. Cập nhật Đèn Lồng Lớn (Sáng bừng rực rỡ cả khi chưa thắp lẫn khi đã thắp)
       sim.lanterns.forEach((l, idx) => {
         const item = lanternMeshes[idx];
         if (!item) return;
         if (l.lit) {
           item.frameMat.emissive.setHex(0xffaa22);
-          item.frameMat.emissiveIntensity = 2.8;
-          item.light.intensity = 4.5 + Math.sin(time * 0.01 + idx) * 0.4;
+          item.frameMat.emissiveIntensity = 7.0; // Bùng nổ siêu sáng khi thắp
+          item.light.intensity = 12.0 + Math.sin(time * 0.01 + idx) * 1.5;
+          item.light.distance = 32.0;
           item.light.color.setHex(0xffbb33);
-          item.safeCircleMat.opacity = 0.5 + Math.sin(time * 0.003 + idx) * 0.15;
-          item.safeCircle.rotation.z += 0.002;
+          item.glowOrbMat.opacity = 0.95;
+          item.safeCircleMat.opacity = 0.95;
+          item.safeCircle.rotation.z += 0.004;
         } else {
-          item.frameMat.emissive.setHex(0x441100);
-          item.frameMat.emissiveIntensity = 0.4;
-          item.light.intensity = 0.8;
-          item.safeCircleMat.opacity = 0.15;
+          item.frameMat.emissive.setHex(0xe85d04); // Đỏ cam rực rỡ ngay từ đầu
+          item.frameMat.emissiveIntensity = 2.4;
+          item.light.intensity = 3.6 + Math.sin(time * 0.008 + idx) * 0.5;
+          item.light.distance = 20.0;
+          item.light.color.setHex(0xff7711);
+          item.glowOrbMat.opacity = 0.45 + Math.sin(time * 0.005 + idx) * 0.1;
+          item.safeCircleMat.opacity = 0.65;
+          item.safeCircle.rotation.z += 0.001;
         }
       });
 
@@ -1671,9 +1927,11 @@
         pulseRingMat.opacity = 0.0;
       }
 
-      // 7. Chuyển động biển mây & trăng sao
+      // 7. Chuyển động biển mây & trăng sao & đom đóm
       cloudSea.rotation.z += 0.0003;
       cloudGroup.rotation.y += 0.0005;
+      fireflyParticles.rotation.y += 0.0007;
+      fireflyParticles.position.y = Math.sin(time * 0.002) * 0.25;
 
       // 8. Camera góc nhìn thứ ba mượt mà theo sau Mây (Yaw + Pitch + Zoom)
       const horizontalDist = Math.cos(cameraPitch) * cameraDist;
