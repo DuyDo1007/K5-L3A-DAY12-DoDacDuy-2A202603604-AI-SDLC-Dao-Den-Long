@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node src/client/server.js",
     "test": "node tests/run_tests.js",
-    "test:headless": "node src/headless/cli.js --scenario tests/scenarios/phase-1-sample.json",
+    "test:headless": "node src/headless/cli.js --seed 42 --night 1 --scenario tests/scenarios/s1_scenario.json --inputs tests/scenarios/s1_inputs.json --ticks 70",
     "headless": "node src/headless/cli.js",
     "verify": "node scripts/verify_phase.js",
     "benchmark": "node scripts/benchmark.js"

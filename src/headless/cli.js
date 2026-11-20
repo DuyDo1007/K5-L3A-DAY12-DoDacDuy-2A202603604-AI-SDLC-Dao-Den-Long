@@ -68,7 +68,8 @@ export function runSimulation(options) {
     }
   }
 
-  const sim = new WorldSimulation({}, options.seed);
+  const night = options.night || 1;
+  const sim = new WorldSimulation({}, options.seed, night);
   if (options.scenario) {
     sim.loadScenario(scenarioData);
   }
@@ -86,7 +87,8 @@ export function runSimulation(options) {
     jump: false,
     interact: false,
     pulse: false,
-    dash: false
+    dash: false,
+    pause: false
   };
 
   const maxTicks = options.ticks;
@@ -100,6 +102,7 @@ export function runSimulation(options) {
       if (update.interact !== undefined) currentInput.interact = update.interact;
       if (update.pulse !== undefined) currentInput.pulse = update.pulse;
       if (update.dash !== undefined) currentInput.dash = update.dash;
+      if (update.pause !== undefined) currentInput.pause = update.pause;
     }
 
     // Chạy 1 bước (k -> k+1)
@@ -116,7 +119,7 @@ export function runSimulation(options) {
     }
 
     // Nếu game kết thúc (thắng hoặc thua), dừng sớm
-    if (sim.state !== 'playing') {
+    if (sim.state === 'won' || sim.state === 'lost') {
       break;
     }
   }

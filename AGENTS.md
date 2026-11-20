@@ -14,3 +14,4 @@
 
 ## 3. Nhật ký Tiến hóa Harness (Harness Evolution Log)
 - **Phase 1 (v1.0):** Khởi tạo bộ khung headless-first, seeded RNG, kiểm chứng tính tất định và pre-commit hook.
+- **Phase 2 (v1.1):** Nâng cấp Test Contract v1.1, tích hợp 3 Đêm (Đảo Bến, Đảo Cau, Đảo Chuông), chuẩn hóa số liệu di chuyển (6m/s, nhảy 7m/s, lướt 14m/s), Gió Lạc (Drifter), Bùa Gió (Wind Charm), và cơ chế Pause.
